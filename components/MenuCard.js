@@ -37,7 +37,7 @@ export function MenuCard(props) {
 const styles = StyleSheet.create({
   card: {
     marginBottom:10,
-
+width:'50%',
     minHeight: 150,
     padding: 5,
     borderColor: 'whitesmoke',

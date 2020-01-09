@@ -10,13 +10,12 @@ export default function HomeScreen() {
     return (
 
         <View style={styles.container}>
-            <ScrollView>
+         
             <MenuCard icon_name="ios-play-circle" text="Медиа" />
             <MenuCard navigate="Settings" icon_name="ios-settings" text="Настройки" />
 
             <MenuCard icon_name="ios-information-circle-outline" text="О нас" />
      
-            </ScrollView>
 
         </View>
     );
