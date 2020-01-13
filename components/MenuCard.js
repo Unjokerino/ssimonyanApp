@@ -36,13 +36,14 @@ export function MenuCard(props) {
 
 const styles = StyleSheet.create({
   card: {
-    marginBottom:10,
-width:'50%',
+    margin:5,
+    width:'45%',
     minHeight: 150,
     padding: 5,
     borderColor: 'whitesmoke',
     borderWidth: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f2f2f2',
+    elevation:10,
 
   },
   cardIconContainer: {

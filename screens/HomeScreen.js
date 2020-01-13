@@ -7,14 +7,17 @@ import { TouchableOpacity, ScrollView } from "react-native-gesture-handler";
 
 export default function HomeScreen() {
 
+    
+
     return (
 
         <View style={styles.container}>
          
-            <MenuCard icon_name="ios-play-circle" text="Медиа" />
+            <MenuCard navigate="Media" icon_name="ios-play-circle" text="Медиа" />
+         
             <MenuCard navigate="Settings" icon_name="ios-settings" text="Настройки" />
 
-            <MenuCard icon_name="ios-information-circle-outline" text="О нас" />
+            <MenuCard navigate="AboutUs" icon_name="ios-information-circle-outline" text="О нас" />
      
 
         </View>
@@ -29,7 +32,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexWrap: 'wrap',
-        backgroundColor: 'whitesmoke',
+        backgroundColor: '#eaeaea',
+        justifyContent:'center',
         flexDirection: "row",
         paddingTop: 60,
     },
