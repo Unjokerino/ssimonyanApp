@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Text,
   View,
+  RefreshControl,
   Picker,
   TextInput
 } from "react-native";
@@ -20,7 +21,8 @@ export default class MediaScreen extends React.Component {
     super(...args);
     this.state = {
       media_cs_name: "",
-      show: false
+      show: false,
+      refreshing: true
     };
   }
 
@@ -35,6 +37,7 @@ export default class MediaScreen extends React.Component {
     ws.onopen = () => {
       this.setState({
         visible: true,
+        refreshing: true,
         snackbar_message: `Соединение открыто`
       });
       let snd = { media_cs_info: true };
@@ -58,7 +61,8 @@ export default class MediaScreen extends React.Component {
     ws.onerror = e => {
       this.setState({
         visible: true,
-        snackbar_message: `[error] ${e.message}`
+        refreshing: true,
+        snackbar_message: `Проблема подключения с устройством`
       });
     };
 
@@ -70,7 +74,13 @@ export default class MediaScreen extends React.Component {
 
   render() {
     return (
-      <View style={{ flex: 1, justifyContent: "center" }}>
+      <View
+        refreshControl={<RefreshControl refreshing={this.state.refreshing} />}
+        style={{
+          flex: 1,
+          justifyContent: "center"
+        }}
+      >
         <Text>{this.state.media_cs_name}</Text>
 
         <View style={{ flexDirection: "row", justifyContent: "center" }}>

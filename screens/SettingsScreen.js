@@ -30,7 +30,7 @@ export default class SettingsScreen extends React.Component {
 
       mode: "date",
       show: false,
-      refreshing: false,
+      refreshing: true,
       rock_auto: false,
       rock_state: false,
       time_mode: 3,
@@ -138,6 +138,7 @@ export default class SettingsScreen extends React.Component {
     ws.onopen = () => {
       this.setState({
         visible: true,
+        refreshing: false,
         snackbar_message: `Соединение открыто`
       });
       let getParams = { get_setting: true };
@@ -156,6 +157,7 @@ export default class SettingsScreen extends React.Component {
     ws.onerror = e => {
       this.setState({
         visible: true,
+        refreshing: false,
         snackbar_message: `Проблема подключения с устройством`
       });
     };
@@ -170,7 +172,7 @@ export default class SettingsScreen extends React.Component {
     const { show, date, mode } = this.state;
     return (
       <Provider>
-        <View style={styles.container}>
+        <View style={[styles.container]}>
           <ScrollView
             refreshControl={
               <RefreshControl
@@ -179,7 +181,7 @@ export default class SettingsScreen extends React.Component {
               />
             }
           >
-            <View>
+            <View style={{ opacity: this.state.refreshing ? 0 : 1 }}>
               <View>
                 <Text style={styles.title}>Режим качания</Text>
                 <ListItem
@@ -395,7 +397,7 @@ export default class SettingsScreen extends React.Component {
                             );
                             this.setState({ rock_voice_time: text });
                           }}
-                          value={this.state.rock_voice_time}
+                          value={String(this.state.rock_voice_time)}
                           style={styles.input}
                           keyboardType="phone-pad"
                         />
@@ -470,12 +472,12 @@ export default class SettingsScreen extends React.Component {
                         onChangeText={text => {
                           ws.send(
                             JSON.stringify({
-                              rock_moition_time: text
+                              rock_motion_time: text
                             })
                           );
-                          this.setState({ rock_moition_time: text });
+                          this.setState({ rock_motion_time: text });
                         }}
-                        value={this.state.rocrock_moition_time}
+                        value={String(this.state.rock_motion_time)}
                         style={styles.input}
                         keyboardType="phone-pad"
                       />
