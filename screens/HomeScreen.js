@@ -1,42 +1,37 @@
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, View, Button, } from 'react-native';
-import { MenuCard } from '../components/MenuCard'
+import { StyleSheet, Text, View, Button } from "react-native";
+import { MenuCard } from "../components/MenuCard";
 
 import { TouchableOpacity, ScrollView } from "react-native-gesture-handler";
 
 export default function HomeScreen() {
+  return (
+    <View style={styles.container}>
+      <MenuCard navigate="Media" icon_name="ios-play-circle" text="Медиа" />
 
-    
+      <MenuCard navigate="Settings" icon_name="ios-settings" text="Настройки" />
 
-    return (
-
-        <View style={styles.container}>
-         
-            <MenuCard navigate="Media" icon_name="ios-play-circle" text="Медиа" />
-         
-            <MenuCard navigate="Settings" icon_name="ios-settings" text="Настройки" />
-
-            <MenuCard navigate="AboutUs" icon_name="ios-information-circle-outline" text="О нас" />
-     
-
-        </View>
-    );
+      <MenuCard
+        navigate="AboutUs"
+        icon_name="ios-information-circle-outline"
+        text="О нас"
+      />
+    </View>
+  );
 }
 
 HomeScreen.navigationOptions = {
-    headerShown: false,
-  };
+  headerShown: false
+};
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        flexWrap: 'wrap',
-        backgroundColor: '#eaeaea',
-        justifyContent:'center',
-        flexDirection: "row",
-        paddingTop: 60,
-    },
-
+  container: {
+    flex: 1,
+    flexWrap: "wrap",
+    backgroundColor: "#eaeaea",
+    justifyContent: "center",
+    flexDirection: "row",
+    paddingTop: 60
+  }
 });
-

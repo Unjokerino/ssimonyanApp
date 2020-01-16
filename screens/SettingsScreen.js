@@ -20,8 +20,6 @@ import {
   Button
 } from "react-native-paper";
 
-var ws = new WebSocket("ws://192.168.1.1:9000");
-
 export default class SettingsScreen extends React.Component {
   constructor(...args) {
     super(...args);
@@ -104,16 +102,16 @@ export default class SettingsScreen extends React.Component {
         time_on_h: date.getHours(),
         time_on_m: date.getMinutes()
       });
-      ws.send(JSON.stringify({ time_on_h: date.getHours() }));
-      ws.send(JSON.stringify({ time_on_m: date.getMinutes() }));
+      global.ws.send(JSON.stringify({ time_on_h: date.getHours() }));
+      global.ws.send(JSON.stringify({ time_on_m: date.getMinutes() }));
     } else if (type === "time_off") {
       this.setState({
         time_off: date,
         time_off_h: date.getHours(),
         time_off_m: date.getMinutes()
       });
-      ws.send(JSON.stringify({ time_off_h: date.getHours() }));
-      ws.send(JSON.stringify({ time_off_m: date.getMinutes() }));
+      global.ws.send(JSON.stringify({ time_off_h: date.getHours() }));
+      global.ws.send(JSON.stringify({ time_off_m: date.getMinutes() }));
     }
     console.log(this.state);
   };
@@ -131,30 +129,38 @@ export default class SettingsScreen extends React.Component {
 
   loadSetting() {
     let getParams = { get_setting: true };
-    ws.send(JSON.stringify(getParams));
+    global.ws.send(JSON.stringify(getParams));
   }
 
   componentDidMount() {
-    ws.onopen = () => {
+    if (global.ws.OPEN) {
+      let getParams = { get_setting: true };
+      global.ws.send(JSON.stringify(getParams));
+      this.setState({
+        visible: true,
+        refreshing: false,
+        snackbar_message: `Соединение открыто`
+      });
+    }
+    global.ws.onopen = () => {
       this.setState({
         visible: true,
         refreshing: false,
         snackbar_message: `Соединение открыто`
       });
       let getParams = { get_setting: true };
-      ws.send(JSON.stringify(getParams));
+      global.ws.send(JSON.stringify(getParams));
     };
 
-    ws.onmessage = e => {
+    global.ws.onmessage = e => {
       this.setState({
         visible: true,
         snackbar_message: `[message] ${e.data}`,
         ...JSON.parse(e.data)
       });
-      console.log(this.state);
     };
 
-    ws.onerror = e => {
+    global.ws.onerror = e => {
       this.setState({
         visible: true,
         refreshing: false,
@@ -162,7 +168,7 @@ export default class SettingsScreen extends React.Component {
       });
     };
 
-    ws.onclose = e => {
+    global.ws.onclose = e => {
       // connection closed
       console.log(e.code, e.reason);
     };
@@ -181,7 +187,7 @@ export default class SettingsScreen extends React.Component {
               />
             }
           >
-            <View style={{ opacity: this.state.refreshing ? 0 : 1 }}>
+            <View>
               <View>
                 <Text style={styles.title}>Режим качания</Text>
                 <ListItem
@@ -191,7 +197,7 @@ export default class SettingsScreen extends React.Component {
                     <CheckBox
                       checked={this.state["rock_auto"]}
                       onPress={() => {
-                        ws.send(
+                        global.ws.send(
                           JSON.stringify({ rock_auto: !this.state.rock_auto })
                         );
                         this.setState({ rock_auto: !this.state.rock_auto });
@@ -212,7 +218,7 @@ export default class SettingsScreen extends React.Component {
                       disabled={this.state["rock_auto"]}
                       checked={this.state["rock_state"]}
                       onPress={() => {
-                        ws.send(
+                        global.ws.send(
                           JSON.stringify({
                             rock_state: !this.state["rock_state"]
                           })
@@ -314,7 +320,7 @@ export default class SettingsScreen extends React.Component {
                     rightElement={
                       <TextInput
                         onChangeText={text => {
-                          ws.send(JSON.stringify({ time_dur: text }));
+                          global.ws.send(JSON.stringify({ time_dur: text }));
                           this.setState({ time_dur: text });
                         }}
                         value={this.state.time_dur.toString()}
@@ -342,7 +348,7 @@ export default class SettingsScreen extends React.Component {
                     rightElement={
                       <TextInput
                         onChangeText={text => {
-                          ws.send(JSON.stringify({ time_pause: text }));
+                          global.ws.send(JSON.stringify({ time_pause: text }));
                           this.setState({ time_pause: text });
                         }}
                         value={this.state.time_pause.toString()}
@@ -369,7 +375,7 @@ export default class SettingsScreen extends React.Component {
                       <CheckBox
                         checked={this.state["rock_voice_en"]}
                         onPress={() => {
-                          ws.send(
+                          global.ws.send(
                             JSON.stringify({
                               rock_voice_en: !this.state.rock_voice_en
                             })
@@ -390,7 +396,7 @@ export default class SettingsScreen extends React.Component {
                       rightElement={
                         <TextInput
                           onChangeText={text => {
-                            ws.send(
+                            global.ws.send(
                               JSON.stringify({
                                 rock_voice_time: text
                               })
@@ -420,7 +426,7 @@ export default class SettingsScreen extends React.Component {
                             value={this.state["rock_voice_sens"]}
                             onValueChange={rock_voice_sens => {
                               rock_voice_sens = Math.round(rock_voice_sens);
-                              ws.send(
+                              global.ws.send(
                                 JSON.stringify({
                                   rock_voice_sens: rock_voice_sens
                                 })
@@ -446,7 +452,7 @@ export default class SettingsScreen extends React.Component {
                     <CheckBox
                       checked={this.state["rock_moition_en"]}
                       onPress={() => {
-                        ws.send(
+                        global.ws.send(
                           JSON.stringify({
                             rock_moition_en: !this.state.rock_moition_en
                           })
@@ -470,7 +476,7 @@ export default class SettingsScreen extends React.Component {
                     rightElement={
                       <TextInput
                         onChangeText={text => {
-                          ws.send(
+                          global.ws.send(
                             JSON.stringify({
                               rock_motion_time: text
                             })
@@ -499,7 +505,7 @@ export default class SettingsScreen extends React.Component {
                           maximumValue={10}
                           value={this.state.rock_motion_sens}
                           onValueChange={rock_motion_sens => {
-                            ws.send(
+                            global.ws.send(
                               JSON.stringify({
                                 rock_motion_sens: rock_motion_sens
                               })
@@ -524,7 +530,7 @@ export default class SettingsScreen extends React.Component {
                     <CheckBox
                       checked={this.state.media_active}
                       onPress={() => {
-                        ws.send(
+                        global.ws.send(
                           JSON.stringify({
                             media_active: !this.state.media_active
                           })
@@ -546,7 +552,7 @@ export default class SettingsScreen extends React.Component {
                     <CheckBox
                       checked={this.state["led_state"]}
                       onPress={() => {
-                        ws.send(
+                        global.ws.send(
                           JSON.stringify({
                             led_state: !this.state.led_state
                           })
@@ -596,7 +602,7 @@ export default class SettingsScreen extends React.Component {
                     seconds.length == 1 ? (seconds = "0" + seconds) : "";
 
                     date = `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
-                    ws.send(
+                    global.ws.send(
                       JSON.stringify({
                         dt_now: date
                       })

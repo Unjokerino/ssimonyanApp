@@ -3,12 +3,12 @@ import { AppLoading } from "expo";
 import { Asset } from "expo-asset";
 import * as Font from "expo-font";
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, View } from 'react-native';
-import MainTabNavigator from './navigation/MainTabNavigator'
+import { StyleSheet, Text, View } from "react-native";
+import MainTabNavigator from "./navigation/MainTabNavigator";
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
-
+  global.ws = new WebSocket("ws://192.168.1.1:9000");
   if (!isLoadingComplete && !props.skipLoadingScreen) {
     return (
       <AppLoading
@@ -20,20 +20,19 @@ export default function App(props) {
   } else {
     return (
       <View style={styles.container}>
-          <MainTabNavigator/>
+        <MainTabNavigator />
       </View>
     );
   }
 }
 async function loadResourcesAsync() {
   await Promise.all([
-
     Font.loadAsync({
       // This is the font that we are using for our tab bar
       ...Ionicons.font,
       // We include SpaceMono because we use it in HomeScreen.js. Feel free to
       // remove this if you are not using it in your app
-      "Roboto": require("./assets/fonts/Roboto-Regular.ttf"),
+      Roboto: require("./assets/fonts/Roboto-Regular.ttf")
     })
   ]);
 }
@@ -50,9 +49,6 @@ function handleFinishLoading(setLoadingComplete) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-
-  
-  },
-
+    flex: 1
+  }
 });
