@@ -3,6 +3,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  FlatList,
   View,
   RefreshControl,
   Picker,
@@ -14,6 +15,7 @@ import { Button } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Title } from "react-native-paper";
 import { toHsv } from "react-native-color-picker";
+import Constants from "../assets/constants";
 
 export default class MediaScreen extends React.Component {
   constructor(...args) {
@@ -21,6 +23,7 @@ export default class MediaScreen extends React.Component {
     this.state = {
       shuffle: false,
       repeat: false,
+      showReconnect: false,
       playlist: [],
       volume: 40,
       mute: false,
@@ -40,20 +43,18 @@ export default class MediaScreen extends React.Component {
     let snd = { media_cs_info: true };
     let playlist = { media_pl_info: true };
     global.ws.send(JSON.stringify(snd));
-    global.ws.send('{"media_cs_name": "text"}');
+    //global.ws.send('{"media_cs_name": "text"}');
     global.ws.send(JSON.stringify(playlist));
-    global.ws.send(
-      '{"media_pl_nm": 1, "media_pl_name":"text1", "media_pl_nm": 2, "media_pl_name":"text2"}'
-    );
+    //global.ws.send(
+    //  '[{"media_pl_nm": 1, "media_pl_name":"text1"}, {"media_pl_nm": 2, "media_pl_name":"text2"}]'
+    //);
   };
 
-  componentDidMount() {
-    if (global.ws.OPEN) {
-      this.getParams();
-    }
+  createCallbacks = () => {
     global.ws.onopen = () => {
       this.setState({
         visible: true,
+        showReconnect: false,
         refreshing: false,
         snackbar_message: `Соединение открыто`
       });
@@ -62,10 +63,12 @@ export default class MediaScreen extends React.Component {
 
     global.ws.onmessage = e => {
       let data = JSON.parse(e.data);
-      if (data["media_pl_nm"] != undefined) {
-        this.setState({
-          playlist: e.data
-        });
+      if (data[0] != undefined) {
+        if (data[0]["media_pl_nm"] != undefined) {
+          this.setState({
+            playlist: [...data]
+          });
+        }
       } else {
         this.setState({
           visible: true,
@@ -83,6 +86,7 @@ export default class MediaScreen extends React.Component {
       this.setState({
         visible: true,
         refreshing: false,
+        showReconnect: true,
         snackbar_message: `Проблема подключения с устройством`
       });
     };
@@ -91,6 +95,24 @@ export default class MediaScreen extends React.Component {
       // connection closed
       console.log(e.code, e.reason);
     };
+  };
+
+  openConnection = () => {
+    global.ws = new WebSocket(Constants.socketURL);
+    this.createCallbacks();
+  };
+
+  componentDidMount() {
+    if (ws.readyState === WebSocket.OPEN) {
+      this.createCallbacks();
+      this.getParams();
+    } else {
+      this.openConnection();
+      this.setState({
+        showReconnect: true,
+        snackbar_message: `Соединение отсутсвует`
+      });
+    }
   }
 
   render() {
@@ -100,7 +122,7 @@ export default class MediaScreen extends React.Component {
           flex: 1
         }}
       >
-        <ScrollView
+        <View
           refreshControl={
             <RefreshControl
               refreshing={this.state.refreshing}
@@ -236,8 +258,21 @@ export default class MediaScreen extends React.Component {
               }}
             />
           </View>
-          <Text style={{ textAlign: "center" }}>{this.state.playlist}</Text>
-        </ScrollView>
+          <FlatList
+            data={this.state.playlist}
+            renderItem={({ item }) => (
+              <Text style={{ textAlign: "center" }}>{item.media_pl_name}</Text>
+            )}
+            keyExtractor={item => item.media_pl_nm}
+          />
+          <View style={{ opacity: this.state.showReconnect ? 1 : 0 }}>
+            <Button
+              disabled={this.state.showReconnect ? false : true}
+              onPress={this.openConnection}
+              title="Переподключиться"
+            ></Button>
+          </View>
+        </View>
         <Snackbar
           visible={this.state.visible}
           onDismiss={() => this.setState({ visible: false })}

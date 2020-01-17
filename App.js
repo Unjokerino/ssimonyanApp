@@ -5,10 +5,12 @@ import * as Font from "expo-font";
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 import MainTabNavigator from "./navigation/MainTabNavigator";
+import Constants from "./assets/constants";
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
-  global.ws = new WebSocket("ws://192.168.1.1:9000");
+
+  global.ws = new WebSocket(Constants.socketURL);
   if (!isLoadingComplete && !props.skipLoadingScreen) {
     return (
       <AppLoading

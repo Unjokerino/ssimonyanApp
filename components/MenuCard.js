@@ -6,6 +6,7 @@ import { useNavigation, useNavigationParam } from "react-navigation-hooks";
 
 export function MenuCard(props) {
   const { navigate } = useNavigation();
+  const color = props.color;
   return (
     <TouchableOpacity
       onPress={() => {
@@ -13,14 +14,17 @@ export function MenuCard(props) {
           navigate(props.navigate);
         }
       }}
-      style={styles.card}
+      style={[styles.card, { borderColor: color }]}
     >
-      <View style={styles.cardIconContainer}>
-        <Icon name={props.icon_name} type="ionicon" color="#2196f3" size={32} />
-      </View>
       <View style={styles.cardTextContainer}>
+        <Icon
+          style={styles.icon}
+          name={props.icon_name}
+          type="ionicon"
+          color="black"
+          size={52}
+        />
         <Text style={styles.title}>{props.text}</Text>
-        <View style={styles.divider}></View>
       </View>
     </TouchableOpacity>
   );
@@ -29,14 +33,13 @@ export function MenuCard(props) {
 const styles = StyleSheet.create({
   card: {
     margin: 5,
+    borderWidth: 2,
     width: "90%",
-    borderRadius: 5,
     minHeight: 100,
     padding: 5,
     borderColor: "whitesmoke",
-    borderWidth: 1,
-    backgroundColor: "#f2f2f2",
-    elevation: 10
+
+    backgroundColor: "#fff"
   },
   cardIconContainer: {
     width: 30,
@@ -49,14 +52,17 @@ const styles = StyleSheet.create({
     backgroundColor: "whitesmoke"
   },
   cardTextContainer: {
-    marginBottom: 30,
+    marginLeft: 15,
     flex: 1,
     flexDirection: "column",
-    justifyContent: "center",
+    flexDirection: "row",
     alignItems: "center"
   },
   title: {
+    fontSize: 20,
+    marginLeft: 10,
     fontWeight: "bold",
     fontFamily: "Roboto"
-  }
+  },
+  icon: {}
 });

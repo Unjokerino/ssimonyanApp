@@ -20,6 +20,8 @@ import {
   Button
 } from "react-native-paper";
 
+import Constants from "../assets/constants";
+
 export default class SettingsScreen extends React.Component {
   constructor(...args) {
     super(...args);
@@ -28,6 +30,7 @@ export default class SettingsScreen extends React.Component {
 
       mode: "date",
       show: false,
+      showReconnect: false,
       refreshing: true,
       rock_auto: false,
       rock_state: false,
@@ -127,21 +130,16 @@ export default class SettingsScreen extends React.Component {
     this.show("time");
   };
 
-  loadSetting() {
-    let getParams = { get_setting: true };
-    global.ws.send(JSON.stringify(getParams));
-  }
-
-  componentDidMount() {
-    if (global.ws.OPEN) {
+  loadSetting = () => {
+    if (ws.readyState !== WebSocket.OPEN) {
+      this.openConnection();
+    } else {
       let getParams = { get_setting: true };
       global.ws.send(JSON.stringify(getParams));
-      this.setState({
-        visible: true,
-        refreshing: false,
-        snackbar_message: `Соединение открыто`
-      });
     }
+  };
+
+  createCallbacks = () => {
     global.ws.onopen = () => {
       this.setState({
         visible: true,
@@ -164,7 +162,7 @@ export default class SettingsScreen extends React.Component {
       this.setState({
         visible: true,
         refreshing: false,
-        snackbar_message: `Проблема подключения с устройством`
+        snackbar_message: `Проблема подключения с устройством, обновите экран что бы переподключиться`
       });
     };
 
@@ -172,6 +170,31 @@ export default class SettingsScreen extends React.Component {
       // connection closed
       console.log(e.code, e.reason);
     };
+  };
+
+  openConnection = () => {
+    global.ws = new WebSocket(Constants.socketURL);
+    this.createCallbacks();
+  };
+
+  componentDidMount() {
+    if (ws.readyState === WebSocket.OPEN) {
+      this.createCallbacks();
+      let getParams = { get_setting: true };
+      global.ws.send(JSON.stringify(getParams));
+      this.setState({
+        visible: true,
+        refreshing: false,
+        snackbar_message: `Соединение открыто`
+      });
+    } else {
+      this.setState({
+        visible: true,
+        showReconnect: true,
+        refreshing: false,
+        snackbar_message: `Соединение отсутсвует, обновите экран что бы переподключиться`
+      });
+    }
   }
 
   render() {
@@ -650,6 +673,13 @@ export default class SettingsScreen extends React.Component {
                       G_led: HEXcolor[1],
                       B_led: HEXcolor[2]
                     });
+                    global.ws.send(
+                      JSON.stringify({
+                        R_led: this.state.R_led,
+                        B_led: this.state.B_led,
+                        G_led: this.state.G_led
+                      })
+                    );
                   }}
                   style={{ flex: 1 }}
                 />
