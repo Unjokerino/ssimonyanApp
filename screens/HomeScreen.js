@@ -1,40 +1,50 @@
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, View, Button } from "react-native";
+import { StyleSheet, Text, View, Button, ImageBackground, PickerItem } from "react-native";
 import { MenuCard } from "../components/MenuCard";
-import { Icon } from "react-native-elements";
+import { Icon, Image } from "react-native-elements";
 
 import { useNavigation, useNavigationParam } from "react-navigation-hooks";
 import { TouchableOpacity, ScrollView } from "react-native-gesture-handler";
+import { Picker } from "react-native";
 
 export default function HomeScreen() {
   const { navigate } = useNavigation();
   return (
-    <View style={styles.container}>
-      <MenuCard
-        color="#f698a7"
-        navigate="Media"
-        icon_name="ios-play-circle"
-        text="Медиа"
-      />
+    <ImageBackground
+      style={styles.container}
+      source={require('../assets/background.png')}
 
-      <MenuCard
-        color="#abc5d2"
-        navigate="Settings"
-        icon_name="ios-settings"
-        text="Настройки"
-      />
+    >
 
-      <MenuCard
-        navigate="AboutUs"
-        icon_name="ios-information-circle-outline"
-        text="О нас"
-      />
+      <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+        <MenuCard
+          color="#f698a7"
+          navigate="Media"
+          icon_name="ios-play-circle"
+          text="Медиа"
+        />
+
+        <MenuCard
+          color="#abc5d2"
+          navigate="Settings"
+          icon_name="ios-settings"
+          text="Настройки"
+        />
+      </View>
+      <View style={{ flex: 1, flexDirection: 'column', marginTop: 70 }}>
+        <Image
+          source={require('../assets/logo.png')}
+          style={{ flex: 1, width: 270, height: 120 }}
+        />
+
+      </View>
       <TouchableOpacity
+        style={{ marginBottom: 40 }}
         onPress={() => {
-          if (props.navigate != undefined) {
-            navigate(props.navigate);
-          }
+
+          navigate('AboutUs');
+
         }}
       >
         <View style={styles.cardTextContainer}>
@@ -47,7 +57,9 @@ export default function HomeScreen() {
           <Text style={styles.title}>О нас</Text>
         </View>
       </TouchableOpacity>
-    </View>
+
+
+    </ImageBackground>
   );
 }
 
@@ -59,15 +71,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexWrap: "wrap",
+    alignItems: 'center',
     backgroundColor: "#eaeaea",
     justifyContent: "center",
-    flexDirection: "row",
-    paddingTop: 60
+    flexDirection: "column",
+    paddingTop: 60,
   },
   cardTextContainer: {
     flexDirection: "column",
     flexDirection: "row",
     alignItems: "center"
+
   },
   title: {
     fontSize: 20,

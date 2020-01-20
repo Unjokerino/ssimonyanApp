@@ -45,10 +45,10 @@ export default class SettingsScreen extends React.Component {
       time_pause: 0,
       rock_voice_en: false,
       rock_voice_time: 5,
-      "rock_voice_sens ": 6,
+      rock_voice_sens: 6,
       rock_motion_en: true,
       rock_motion_time: 2,
-      "rock_motion_sens ": 4,
+      rock_motion_sens: 4,
       media_active: true,
       led_state: true,
       R_led: 255,
@@ -83,16 +83,28 @@ export default class SettingsScreen extends React.Component {
     );
     return rgb && rgb.length === 4
       ? "#" +
-          ("0" + parseInt(rgb[1], 10).toString(16)).slice(-2) +
-          ("0" + parseInt(rgb[2], 10).toString(16)).slice(-2) +
-          ("0" + parseInt(rgb[3], 10).toString(16)).slice(-2)
+      ("0" + parseInt(rgb[1], 10).toString(16)).slice(-2) +
+      ("0" + parseInt(rgb[2], 10).toString(16)).slice(-2) +
+      ("0" + parseInt(rgb[3], 10).toString(16)).slice(-2)
       : "";
   };
 
   startClock = time => {
-    setInterval(() => {}, 1000);
+    setInterval(() => { }, 1000);
   };
 
+  changeColor = color => {
+    this.setState({
+      R_led: 111,
+      G_led: color[1],
+      B_led: color[2]
+    })
+    global.ws.send(JSON.stringify({
+      R_led: color[0],
+      G_led: color[1],
+      B_led: color[2]
+    }))
+  }
   setDate = (event, date) => {
     let type = this.state.time_on_type;
     date = date || this.state.date;
@@ -182,6 +194,32 @@ export default class SettingsScreen extends React.Component {
       this.createCallbacks();
       let getParams = { get_setting: true };
       global.ws.send(JSON.stringify(getParams));
+      let params = `{
+        "rock_auto": false,
+        "rock_state": false,
+        "time_mode": 2, 
+        "time_on_h": 19, 
+        "time_on_m": 12, 
+        "time_off_h": 19, 
+        "time_off_m": 30, 
+        "time_dur": 2, 
+        "time_pause": 3, 
+        "rock_voice_en": false, 
+        "rock_voice_time": 5,
+        "rock_voice_sens ": 6,
+        "rock_motion_en": true, 
+        "rock_motion_time": 2,
+        "rock_motion_sens ": 4,
+        "media_active": true, 
+        "led_state": true, 
+        "R_led": 113, 
+        "G_led": 0, 
+        "B_led": 115, 
+        "dt_dev": "21/01/2020 15:35:22",
+        "dt_now": "21/01/2020 15:35:22",
+        "fw_ver": "v1.0_beta"
+        }`
+      global.ws.send(params)
       this.setState({
         visible: true,
         refreshing: false,
@@ -276,9 +314,12 @@ export default class SettingsScreen extends React.Component {
                   bottomDivider
                   title={
                     <Picker
-                      selectedValue={this.state["time_mode"]}
-                      onValueChange={(itemValue, itemIndex) =>
+
+                      selectedValue={this.state && this.state.time_mode || 1}
+                      onValueChange={(itemValue, itemIndex) => {
                         this.setState({ time_mode: itemValue })
+                        global.ws.send(JSON.stringify({ time_mode: itemValue }));
+                      }
                       }
                     >
                       <Picker.Item label="Выкл" value="1" />
@@ -335,7 +376,7 @@ export default class SettingsScreen extends React.Component {
                     style={{
                       opacity:
                         this.state["time_mode"] == "1" ||
-                        this.state["time_mode"] == "2"
+                          this.state["time_mode"] == "2"
                           ? 0.5
                           : 1
                     }}
@@ -349,7 +390,7 @@ export default class SettingsScreen extends React.Component {
                         value={this.state.time_dur.toString()}
                         editable={
                           this.state["time_mode"] == "1" ||
-                          this.state["time_mode"] == "2"
+                            this.state["time_mode"] == "2"
                             ? false
                             : true
                         }
@@ -363,7 +404,7 @@ export default class SettingsScreen extends React.Component {
                     style={{
                       opacity:
                         this.state["time_mode"] == "1" ||
-                        this.state["time_mode"] == "2"
+                          this.state["time_mode"] == "2"
                           ? 0.5
                           : 1
                     }}
@@ -377,7 +418,7 @@ export default class SettingsScreen extends React.Component {
                         value={this.state.time_pause.toString()}
                         editable={
                           this.state["time_mode"] == "1" ||
-                          this.state["time_mode"] == "2"
+                            this.state["time_mode"] == "2"
                             ? false
                             : true
                         }
@@ -442,8 +483,8 @@ export default class SettingsScreen extends React.Component {
                             {this.state.rock_voice_sens}
                           </Text>
                           <Slider
-                            minimumTrackTintColor={"#2089dc"}
-                            thumbTintColor={"#2089dc"}
+                            minimumTrackTintColor={"#FFBFC9"}
+                            thumbTintColor={"#FFBFC9"}
                             minimumValue={0}
                             maximumValue={10}
                             value={this.state["rock_voice_sens"]}
@@ -522,18 +563,19 @@ export default class SettingsScreen extends React.Component {
                           {this.state["rock_motion_sens"]}
                         </Text>
                         <Slider
-                          minimumTrackTintColor={"#2089dc"}
-                          thumbTintColor={"#2089dc"}
+                          minimumTrackTintColor={"#FFBFC9"}
+                          thumbTintColor={"#FFBFC9"}
                           minimumValue={0}
                           maximumValue={10}
                           value={this.state.rock_motion_sens}
                           onValueChange={rock_motion_sens => {
+                            rock_motion_sens = Math.round(rock_motion_sens);
                             global.ws.send(
                               JSON.stringify({
                                 rock_motion_sens: rock_motion_sens
                               })
                             );
-                            rock_motion_sens = Math.round(rock_motion_sens);
+
                             this.setState({
                               rock_motion_sens: rock_motion_sens
                             });
@@ -573,7 +615,7 @@ export default class SettingsScreen extends React.Component {
                   title="Вкл"
                   rightElement={
                     <CheckBox
-                      checked={this.state["led_state"]}
+                      checked={this.state.led_state}
                       onPress={() => {
                         global.ws.send(
                           JSON.stringify({
@@ -581,7 +623,7 @@ export default class SettingsScreen extends React.Component {
                           })
                         );
                         this.setState({
-                          led_state: !this.state["led_state"]
+                          led_state: !this.state.led_state
                         });
                       }}
                     />
@@ -605,7 +647,11 @@ export default class SettingsScreen extends React.Component {
                 <Text style={styles.title}>Время на устройстве</Text>
                 <ListItem
                   bottomDivider
-                  title={<Text>{this.state["dt_dev"]}</Text>}
+                  title={
+                    <View style={{justifyContent:'space-between',flexDirection:'row'}}>
+                      <Text>{this.state["dt_dev"].split(' ')[0]}</Text>
+                      <Text style={styles.input}>{this.state["dt_dev"].split(' ')[1]}</Text>
+                    </View>}
                 />
                 <Button
                   onPress={() => {
@@ -631,6 +677,7 @@ export default class SettingsScreen extends React.Component {
                       })
                     );
                   }}
+                  color="#FF6179"
                   title="Обновить"
                 >
                   Обновить
@@ -663,23 +710,21 @@ export default class SettingsScreen extends React.Component {
               visible={this.state.visibleModal}
               onDismiss={this._hideModal}
             >
+
               <View style={{ height: 500 }}>
                 <ColorPicker
+                  defaultColor={this.RGBtoHEX(
+                    `rgba(${this.state.R_led},${this.state.G_led},${this.state.B_led})`
+                  )}
                   onColorSelected={color => {
                     this._hideModal();
                     let HEXcolor = this.HEXtoRGB(color, 0).split(",");
-                    this.setState({
-                      R_led: HEXcolor[0],
-                      G_led: HEXcolor[1],
-                      B_led: HEXcolor[2]
-                    });
-                    global.ws.send(
-                      JSON.stringify({
-                        R_led: this.state.R_led,
-                        B_led: this.state.B_led,
-                        G_led: this.state.G_led
-                      })
-                    );
+                    let R_led = Number(HEXcolor[0])
+                    let G_led = Number(HEXcolor[1])
+                    let B_led = Number(HEXcolor[2])
+                    this.changeColor(HEXcolor)
+
+
                   }}
                   style={{ flex: 1 }}
                 />
@@ -700,16 +745,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
 
-    backgroundColor: "whitesmoke"
+    backgroundColor: "#EFFAFF"
   },
   title: {
-    padding: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 20,
     opacity: 0.5,
+    color: '#0C5D82',
     fontFamily: "Roboto",
     fontSize: 16
   },
   input: {
-    backgroundColor: "whitesmoke",
+    backgroundColor: "#FFE5E9",
     borderRadius: 5,
     paddingVertical: 2,
     paddingHorizontal: 6

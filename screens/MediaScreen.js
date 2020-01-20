@@ -5,13 +5,14 @@ import {
   Text,
   FlatList,
   View,
+  ImageBackground,
   RefreshControl,
   Picker,
   TextInput
 } from "react-native";
 import { Snackbar, Avatar } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { Button } from "react-native-elements";
+import { Button, Image } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Title } from "react-native-paper";
 import { toHsv } from "react-native-color-picker";
@@ -21,12 +22,12 @@ export default class MediaScreen extends React.Component {
   constructor(...args) {
     super(...args);
     this.state = {
-      shuffle: false,
-      repeat: false,
+      M_shuffle: false,
+      M_repeat: false,
       showReconnect: false,
       playlist: [],
       volume: 40,
-      mute: false,
+      M_mute: false,
       media_cs_name: "",
       show: false,
       refreshing: false
@@ -37,6 +38,7 @@ export default class MediaScreen extends React.Component {
     let snd = { media_cs_info: true };
     global.ws.send(JSON.stringify(message));
     global.ws.send(JSON.stringify(snd));
+
   };
 
   getParams = () => {
@@ -117,11 +119,12 @@ export default class MediaScreen extends React.Component {
 
   render() {
     return (
-      <View
-        style={{
-          flex: 1
-        }}
-      >
+      <ImageBackground
+      style={styles.container}
+      source={require('../assets/stars.png')}
+
+    >
+
         <View
           refreshControl={
             <RefreshControl
@@ -129,7 +132,10 @@ export default class MediaScreen extends React.Component {
               onRefresh={this.getParams}
             />
           }
-        >
+        > 
+          <View style={{justifyContent:'center',flexDirection:'column',alignItems:'center',marginTop:21}}>
+          <Image source={require('../assets/palyicon.png')} style={{width:180,height:160}} ></Image>
+          </View>
           <Title style={{ textAlign: "center" }}>
             {this.state.media_cs_name}
           </Title>
@@ -225,7 +231,10 @@ export default class MediaScreen extends React.Component {
               }}
             />
             <Button
-              onPress={() => this.sendMessage({ Media_Mute: !this.state.mute })}
+              onPress={() => {
+                this.sendMessage({ Media_Mute: !this.state.Media_Mute })
+                this.setState({Media_Mute:!this.state.Media_Mute})
+              }}
               containerStyle={styles.button}
               icon={{
                 name: "volume-mute",
@@ -233,10 +242,13 @@ export default class MediaScreen extends React.Component {
                 color: "white"
               }}
             />
+            {this.state.M_shuffle}
             <Button
               onPress={() => {
-                this.sendMessage({ M_shuffle: !this.state.shuffle });
+        
+                this.sendMessage({ M_shuffle: !this.state.M_shuffle });
                 this.setState({ M_shuffle: !this.state.M_shuffle });
+                
               }}
               containerStyle={styles.button}
               icon={{
@@ -247,7 +259,7 @@ export default class MediaScreen extends React.Component {
             />
             <Button
               onPress={() => {
-                this.sendMessage({ M_repeat: !this.state.repeat });
+                this.sendMessage({ M_repeat: !this.state.M_repeat });
                 this.setState({ M_repeat: !this.state.M_repeat });
               }}
               containerStyle={styles.button}
@@ -285,7 +297,7 @@ export default class MediaScreen extends React.Component {
         >
           {this.state.snackbar_message}
         </Snackbar>
-      </View>
+      </ImageBackground>
     );
   }
 }
@@ -297,8 +309,8 @@ MediaScreen.navigationOptions = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 15,
-    backgroundColor: "whitesmoke"
+ 
+    backgroundColor: "white"
   },
   buttonContainer: {
     flexDirection: "row",
