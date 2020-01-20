@@ -10,9 +10,10 @@ import {
   Picker,
   TextInput
 } from "react-native";
-import { Snackbar, Avatar } from "react-native-paper";
+
+import { Snackbar, Avatar, Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { Button, Image } from "react-native-elements";
+import { Image, Divider } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Title } from "react-native-paper";
 import { toHsv } from "react-native-color-picker";
@@ -38,18 +39,17 @@ export default class MediaScreen extends React.Component {
     let snd = { media_cs_info: true };
     global.ws.send(JSON.stringify(message));
     global.ws.send(JSON.stringify(snd));
-
   };
 
   getParams = () => {
     let snd = { media_cs_info: true };
     let playlist = { media_pl_info: true };
     global.ws.send(JSON.stringify(snd));
-    //global.ws.send('{"media_cs_name": "text"}');
+    global.ws.send('{"media_cs_name": "text"}');
     global.ws.send(JSON.stringify(playlist));
-    //global.ws.send(
-    //  '[{"media_pl_nm": 1, "media_pl_name":"text1"}, {"media_pl_nm": 2, "media_pl_name":"text2"}]'
-    //);
+    global.ws.send(
+      '[{"media_pl_nm": 1, "media_pl_name":"text1"}, {"media_pl_nm": 2, "media_pl_name":"text2"}]'
+    );
   };
 
   createCallbacks = () => {
@@ -120,11 +120,9 @@ export default class MediaScreen extends React.Component {
   render() {
     return (
       <ImageBackground
-      style={styles.container}
-      source={require('../assets/stars.png')}
-
-    >
-
+        style={styles.container}
+        source={require("../assets/stars.png")}
+      >
         <View
           refreshControl={
             <RefreshControl
@@ -132,16 +130,26 @@ export default class MediaScreen extends React.Component {
               onRefresh={this.getParams}
             />
           }
-        > 
-          <View style={{justifyContent:'center',flexDirection:'column',alignItems:'center',marginTop:21}}>
-          <Image source={require('../assets/palyicon.png')} style={{width:180,height:160}} ></Image>
+        >
+          <View
+            style={{
+              justifyContent: "center",
+              flexDirection: "column",
+              alignItems: "center",
+              marginTop: 21
+            }}
+          >
+            <Image
+              source={require("../assets/palyicon.png")}
+              style={{ width: 240, height: 200 }}
+            ></Image>
           </View>
           <Title style={{ textAlign: "center" }}>
             {this.state.media_cs_name}
           </Title>
 
-          <View style={{ flexDirection: "row", justifyContent: "center" }}>
-            <Button
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
               onPress={() => this.sendMessage({ Media_Prev: true })}
               containerStyle={styles.button}
               type="clear"
@@ -150,8 +158,13 @@ export default class MediaScreen extends React.Component {
                 size: 24,
                 color: "#2389de"
               }}
-            />
-            <Button
+            >
+              <Image
+                source={require("../assets/prev.png")}
+                style={{ width: 30, height: 40, resizeMode: "cover" }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={() => this.sendMessage({ Media_Stop: true })}
               containerStyle={styles.button}
               icon={{
@@ -160,8 +173,13 @@ export default class MediaScreen extends React.Component {
 
                 color: "white"
               }}
-            />
-            <Button
+            >
+              <Image
+                source={require("../assets/stop.png")}
+                style={{ width: 40, height: 40, resizeMode: "contain" }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={() => this.sendMessage({ Media_Pause: true })}
               containerStyle={styles.button}
               icon={{
@@ -169,17 +187,23 @@ export default class MediaScreen extends React.Component {
                 size: 28,
                 color: "white"
               }}
-            />
-            <Button
-              onPress={() => this.sendMessage({ Media_Play: true })}
+            >
+              <Image
+                source={require("../assets/pause.png")}
+                style={{ width: 40, height: 40, resizeMode: "contain" }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
               containerStyle={styles.button}
-              icon={{
-                name: "play-arrow",
-                size: 28,
-                color: "white"
-              }}
-            />
-            <Button
+              onPress={() => this.sendMessage({ Media_Play: true })}
+            >
+              <Image
+                source={require("../assets/play.png")}
+                style={{ width: 30, height: 40, resizeMode: "contain" }}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
               onPress={() => this.sendMessage({ Media_Next: true })}
               containerStyle={styles.button}
               type="clear"
@@ -188,30 +212,32 @@ export default class MediaScreen extends React.Component {
                 size: 24,
                 color: "#2389de"
               }}
-            />
+            >
+              <Image
+                source={require("../assets/next.png")}
+                style={{ width: 30, height: 40, resizeMode: "contain" }}
+              />
+            </TouchableOpacity>
           </View>
           <View style={styles.buttonContainer}>
-            <Button
-              containerStyle={styles.button}
+            <TouchableOpacity
               onPress={() => {
-                this.setState({
-                  volume: this.state.volume + 10
-                });
-                this.sendMessage({
-                  Media_Vol:
-                    this.state.volume < 100
-                      ? this.state.volume + 10
-                      : this.state.volume
-                });
+                this.sendMessage({ M_repeat: !this.state.M_repeat });
+                this.setState({ M_repeat: !this.state.M_repeat });
               }}
+              containerStyle={styles.button}
               icon={{
-                name: "volume-up",
+                name: "repeat",
                 size: 24,
                 color: "white"
               }}
-            />
-
-            <Button
+            >
+              <Image
+                source={require("../assets/repeatD.png")}
+                style={{ width: 40, height: 40, resizeMode: "contain" }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={() => {
                 this.setState({
                   volume: this.state.volume - 10
@@ -229,11 +255,41 @@ export default class MediaScreen extends React.Component {
                 size: 24,
                 color: "white"
               }}
-            />
-            <Button
+            >
+              <Image
+                source={require("../assets/VolumeD.png")}
+                style={{ width: 53, height: 40, resizeMode: "contain" }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              containerStyle={styles.button}
               onPress={() => {
-                this.sendMessage({ Media_Mute: !this.state.Media_Mute })
-                this.setState({Media_Mute:!this.state.Media_Mute})
+                this.setState({
+                  volume: this.state.volume + 10
+                });
+                this.sendMessage({
+                  Media_Vol:
+                    this.state.volume < 100
+                      ? this.state.volume + 10
+                      : this.state.volume
+                });
+              }}
+              icon={{
+                name: "volume-up",
+                size: 24,
+                color: "white"
+              }}
+            >
+              <Image
+                source={require("../assets/VolumeMax.png")}
+                style={{ width: 53, height: 40, resizeMode: "contain" }}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
+                this.sendMessage({ Media_Mute: !this.state.Media_Mute });
+                this.setState({ Media_Mute: !this.state.Media_Mute });
               }}
               containerStyle={styles.button}
               icon={{
@@ -241,14 +297,16 @@ export default class MediaScreen extends React.Component {
                 size: 24,
                 color: "white"
               }}
-            />
-            {this.state.M_shuffle}
-            <Button
+            >
+              <Image
+                source={require("../assets/muteD.png")}
+                style={{ width: 53, height: 40, resizeMode: "contain" }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={() => {
-        
                 this.sendMessage({ M_shuffle: !this.state.M_shuffle });
                 this.setState({ M_shuffle: !this.state.M_shuffle });
-                
               }}
               containerStyle={styles.button}
               icon={{
@@ -256,24 +314,27 @@ export default class MediaScreen extends React.Component {
                 size: 24,
                 color: "white"
               }}
-            />
-            <Button
-              onPress={() => {
-                this.sendMessage({ M_repeat: !this.state.M_repeat });
-                this.setState({ M_repeat: !this.state.M_repeat });
-              }}
-              containerStyle={styles.button}
-              icon={{
-                name: "repeat",
-                size: 24,
-                color: "white"
-              }}
-            />
+            >
+              <Image
+                source={require("../assets/shuffle.png")}
+                style={{ width: 40, height: 40, resizeMode: "contain" }}
+              />
+            </TouchableOpacity>
           </View>
+
+          <Divider
+            style={{
+              backgroundColor: "#FFE6E9",
+              marginVertical: 13,
+              height: 2
+            }}
+          ></Divider>
           <FlatList
             data={this.state.playlist}
             renderItem={({ item }) => (
-              <Text style={{ textAlign: "center" }}>{item.media_pl_name}</Text>
+              <Text style={{ fontSize: 22, textAlign: "center" }}>
+                {item.media_pl_name}
+              </Text>
             )}
             keyExtractor={item => item.media_pl_nm}
           />
@@ -309,13 +370,15 @@ MediaScreen.navigationOptions = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
- 
+    alignItems: "center",
     backgroundColor: "white"
   },
   buttonContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "center"
+    display: "flex",
+
+    justifyContent: "space-between"
   },
   button: {
     color: "red",

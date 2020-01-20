@@ -3,11 +3,19 @@ import {
   ScrollView,
   StyleSheet,
   View,
+  AsyncStorage,
   Picker,
   RefreshControl,
   TextInput
 } from "react-native";
-import { ListItem, CheckBox, Divider, Slider } from "react-native-elements";
+import {
+  ListItem,
+  CheckBox,
+  Divider,
+  Slider,
+  Image
+} from "react-native-elements";
+import RNPickerSelect from "react-native-picker-select";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { ColorPicker, toHsv, fromHsv } from "react-native-color-picker";
@@ -21,13 +29,14 @@ import {
 } from "react-native-paper";
 
 import Constants from "../assets/constants";
+import Language from "../assets/localisation/localisation";
 
 export default class SettingsScreen extends React.Component {
   constructor(...args) {
     super(...args);
     this.state = {
       date: new Date("2020-06-12T14:42:42"),
-
+      lang: Language.language["am"],
       mode: "date",
       show: false,
       showReconnect: false,
@@ -83,14 +92,14 @@ export default class SettingsScreen extends React.Component {
     );
     return rgb && rgb.length === 4
       ? "#" +
-      ("0" + parseInt(rgb[1], 10).toString(16)).slice(-2) +
-      ("0" + parseInt(rgb[2], 10).toString(16)).slice(-2) +
-      ("0" + parseInt(rgb[3], 10).toString(16)).slice(-2)
+          ("0" + parseInt(rgb[1], 10).toString(16)).slice(-2) +
+          ("0" + parseInt(rgb[2], 10).toString(16)).slice(-2) +
+          ("0" + parseInt(rgb[3], 10).toString(16)).slice(-2)
       : "";
   };
 
   startClock = time => {
-    setInterval(() => { }, 1000);
+    setInterval(() => {}, 1000);
   };
 
   changeColor = color => {
@@ -98,13 +107,15 @@ export default class SettingsScreen extends React.Component {
       R_led: 111,
       G_led: color[1],
       B_led: color[2]
-    })
-    global.ws.send(JSON.stringify({
-      R_led: color[0],
-      G_led: color[1],
-      B_led: color[2]
-    }))
-  }
+    });
+    global.ws.send(
+      JSON.stringify({
+        R_led: color[0],
+        G_led: color[1],
+        B_led: color[2]
+      })
+    );
+  };
   setDate = (event, date) => {
     let type = this.state.time_on_type;
     date = date || this.state.date;
@@ -190,6 +201,11 @@ export default class SettingsScreen extends React.Component {
   };
 
   componentDidMount() {
+    if (global.language != undefined) {
+      this.setState({
+        lang: Language.language[global.language]
+      });
+    }
     if (ws.readyState === WebSocket.OPEN) {
       this.createCallbacks();
       let getParams = { get_setting: true };
@@ -218,8 +234,8 @@ export default class SettingsScreen extends React.Component {
         "dt_dev": "21/01/2020 15:35:22",
         "dt_now": "21/01/2020 15:35:22",
         "fw_ver": "v1.0_beta"
-        }`
-      global.ws.send(params)
+        }`;
+      //global.ws.send(params);
       this.setState({
         visible: true,
         refreshing: false,
@@ -237,6 +253,9 @@ export default class SettingsScreen extends React.Component {
 
   render() {
     const { show, date, mode } = this.state;
+    const lang = this.state.lang;
+    const checked = <View style={styles.checked}></View>;
+
     return (
       <Provider>
         <View style={[styles.container]}>
@@ -250,12 +269,13 @@ export default class SettingsScreen extends React.Component {
           >
             <View>
               <View>
-                <Text style={styles.title}>Режим качания</Text>
+                <Text style={styles.title}>{lang.rock_type}</Text>
                 <ListItem
-                  bottomDivider
-                  title="Автоматическое качание"
+                  title={<Text style={styles.text}>{lang.rock_auto}</Text>}
                   rightElement={
                     <CheckBox
+                      checkedIcon={<View style={styles.checked}></View>}
+                      uncheckedIcon={<View style={styles.unchecked}></View>}
                       checked={this.state["rock_auto"]}
                       onPress={() => {
                         global.ws.send(
@@ -269,13 +289,14 @@ export default class SettingsScreen extends React.Component {
                 />
 
                 <ListItem
-                  bottomDivider
                   containerStyle={{
                     opacity: this.state["rock_auto"] ? 0.4 : 1
                   }}
-                  title="Включить качание"
+                  title={<Text style={styles.text}>{lang.rock_state}</Text>}
                   rightElement={
                     <CheckBox
+                      checkedIcon={<View style={styles.checked}></View>}
+                      uncheckedIcon={<View style={styles.unchecked}></View>}
                       disabled={this.state["rock_auto"]}
                       checked={this.state["rock_state"]}
                       onPress={() => {
@@ -294,9 +315,7 @@ export default class SettingsScreen extends React.Component {
                 />
               </View>
               <View>
-                <Text style={styles.title}>
-                  Автоматическое качание по времени
-                </Text>
+                <Text style={styles.title}>{lang.rock_state_time}</Text>
                 <View>
                   <View>
                     {show && (
@@ -310,31 +329,31 @@ export default class SettingsScreen extends React.Component {
                     )}
                   </View>
                 </View>
-                <ListItem
-                  bottomDivider
-                  title={
-                    <Picker
 
-                      selectedValue={this.state && this.state.time_mode || 1}
+                <ListItem
+                  title={
+                    <RNPickerSelect
+                      value={String(this.state.time_mode)}
                       onValueChange={(itemValue, itemIndex) => {
-                        this.setState({ time_mode: itemValue })
-                        global.ws.send(JSON.stringify({ time_mode: itemValue }));
-                      }
-                      }
-                    >
-                      <Picker.Item label="Выкл" value="1" />
-                      <Picker.Item label="Одиночный режим" value="2" />
-                      <Picker.Item label="Многоразовый" value="3" />
-                    </Picker>
+                        this.setState({ time_mode: itemValue });
+                        global.ws.send(
+                          JSON.stringify({ time_mode: itemValue })
+                        );
+                      }}
+                      items={[
+                        { label: lang.off, value: "1" },
+                        { label: lang.solo, value: "2" },
+                        { label: lang.multi, value: "3" }
+                      ]}
+                    />
                   }
                 />
                 <View style={{}}>
                   <ListItem
-                    bottomDivider
                     style={{
                       opacity: this.state["time_mode"] == "1" ? 0.5 : 1
                     }}
-                    title="Время включения"
+                    title={<Text style={styles.text}>{lang.time_on}</Text>}
                     rightElement={
                       <TouchableOpacity
                         disabled={this.state["time_mode"] == "1" ? true : false}
@@ -342,17 +361,15 @@ export default class SettingsScreen extends React.Component {
                           this.timepicker();
                           this.setState({ time_on_type: "time_on" });
                         }}
-                        style={styles.input}
                       >
-                        <Text>
+                        <Text style={styles.input}>
                           {this.state.time_on_h + ":" + this.state.time_on_m}
                         </Text>
                       </TouchableOpacity>
                     }
                   />
                   <ListItem
-                    bottomDivider
-                    title="Время выключения"
+                    title={<Text style={styles.text}>{lang.time_off}</Text>}
                     style={{
                       opacity: this.state["time_mode"] == "1" ? 0.5 : 1
                     }}
@@ -363,24 +380,22 @@ export default class SettingsScreen extends React.Component {
                           this.timepicker();
                           this.setState({ time_on_type: "time_off" });
                         }}
-                        style={styles.input}
                       >
-                        <Text>
+                        <Text style={styles.input}>
                           {this.state.time_off_h + ":" + this.state.time_off_m}
                         </Text>
                       </TouchableOpacity>
                     }
                   />
                   <ListItem
-                    bottomDivider
                     style={{
                       opacity:
                         this.state["time_mode"] == "1" ||
-                          this.state["time_mode"] == "2"
+                        this.state["time_mode"] == "2"
                           ? 0.5
                           : 1
                     }}
-                    title="Длительность, сек"
+                    title={<Text style={styles.text}>{lang.dur}</Text>}
                     rightElement={
                       <TextInput
                         onChangeText={text => {
@@ -390,7 +405,7 @@ export default class SettingsScreen extends React.Component {
                         value={this.state.time_dur.toString()}
                         editable={
                           this.state["time_mode"] == "1" ||
-                            this.state["time_mode"] == "2"
+                          this.state["time_mode"] == "2"
                             ? false
                             : true
                         }
@@ -400,15 +415,14 @@ export default class SettingsScreen extends React.Component {
                     }
                   />
                   <ListItem
-                    bottomDivider
                     style={{
                       opacity:
                         this.state["time_mode"] == "1" ||
-                          this.state["time_mode"] == "2"
+                        this.state["time_mode"] == "2"
                           ? 0.5
                           : 1
                     }}
-                    title="Пауза, сек"
+                    title={<Text style={styles.text}>{lang.pause}</Text>}
                     rightElement={
                       <TextInput
                         onChangeText={text => {
@@ -418,7 +432,7 @@ export default class SettingsScreen extends React.Component {
                         value={this.state.time_pause.toString()}
                         editable={
                           this.state["time_mode"] == "1" ||
-                            this.state["time_mode"] == "2"
+                          this.state["time_mode"] == "2"
                             ? false
                             : true
                         }
@@ -430,13 +444,14 @@ export default class SettingsScreen extends React.Component {
                 </View>
               </View>
               <View>
-                <Text style={styles.title}>Активация по звуку</Text>
+                <Text style={styles.title}>{lang.act_on_sound}</Text>
                 <View style={[styles.card]}>
                   <ListItem
-                    bottomDivider
-                    title="Включить активацию"
+                    title={<Text style={styles.text}>{lang.act_on}</Text>}
                     rightElement={
                       <CheckBox
+                        checkedIcon={<View style={styles.checked}></View>}
+                        uncheckedIcon={<View style={styles.unchecked}></View>}
                         checked={this.state["rock_voice_en"]}
                         onPress={() => {
                           global.ws.send(
@@ -455,8 +470,7 @@ export default class SettingsScreen extends React.Component {
                     style={{ opacity: this.state["rock_voice_en"] ? 1 : 0.5 }}
                   >
                     <ListItem
-                      bottomDivider
-                      title="Длительность, сек"
+                      title={<Text style={styles.text}>{lang.dur}</Text>}
                       rightElement={
                         <TextInput
                           onChangeText={text => {
@@ -475,20 +489,16 @@ export default class SettingsScreen extends React.Component {
                     />
 
                     <ListItem
-                      bottomDivider
                       title={
                         <View>
-                          <Text>
-                            Чувствительность микрофона{" "}
-                            {this.state.rock_voice_sens}
-                          </Text>
+                          <Text style={styles.text}>{lang.mic_sens}</Text>
                           <Slider
                             minimumTrackTintColor={"#FFBFC9"}
                             thumbTintColor={"#FFBFC9"}
                             minimumValue={0}
                             maximumValue={10}
                             value={this.state["rock_voice_sens"]}
-                            onValueChange={rock_voice_sens => {
+                            onSlidingComplete={rock_voice_sens => {
                               rock_voice_sens = Math.round(rock_voice_sens);
                               global.ws.send(
                                 JSON.stringify({
@@ -507,13 +517,14 @@ export default class SettingsScreen extends React.Component {
                 </View>
               </View>
               <View>
-                <Text style={styles.title}>Активация по движению</Text>
+                <Text style={styles.title}> {lang.on_m_activ}</Text>
 
                 <ListItem
-                  bottomDivider
-                  title="Включить активацию"
+                  title={<Text style={styles.text}>{lang.act_on}</Text>}
                   rightElement={
                     <CheckBox
+                      checkedIcon={<View style={styles.checked}></View>}
+                      uncheckedIcon={<View style={styles.unchecked}></View>}
                       checked={this.state["rock_moition_en"]}
                       onPress={() => {
                         global.ws.send(
@@ -535,8 +546,7 @@ export default class SettingsScreen extends React.Component {
                   ]}
                 >
                   <ListItem
-                    bottomDivider
-                    title="Длительность, сек"
+                    title={<Text style={styles.text}>{lang.dur}</Text>}
                     rightElement={
                       <TextInput
                         onChangeText={text => {
@@ -555,20 +565,16 @@ export default class SettingsScreen extends React.Component {
                   />
 
                   <ListItem
-                    bottomDivider
                     title={
                       <View>
-                        <Text>
-                          Чувствительность движений{" "}
-                          {this.state["rock_motion_sens"]}
-                        </Text>
+                        <Text style={styles.text}>{lang.dur}</Text>
                         <Slider
                           minimumTrackTintColor={"#FFBFC9"}
                           thumbTintColor={"#FFBFC9"}
                           minimumValue={0}
                           maximumValue={10}
                           value={this.state.rock_motion_sens}
-                          onValueChange={rock_motion_sens => {
+                          onSlidingComplete={rock_motion_sens => {
                             rock_motion_sens = Math.round(rock_motion_sens);
                             global.ws.send(
                               JSON.stringify({
@@ -589,10 +595,11 @@ export default class SettingsScreen extends React.Component {
               <View>
                 <Text style={styles.title}></Text>
                 <ListItem
-                  bottomDivider
-                  title="Вкл плеера во время качания"
+                  title={<Text style={styles.text}>{lang.on_dur_rock}</Text>}
                   rightElement={
                     <CheckBox
+                      checkedIcon={<View style={styles.checked}></View>}
+                      uncheckedIcon={<View style={styles.unchecked}></View>}
                       checked={this.state.media_active}
                       onPress={() => {
                         global.ws.send(
@@ -609,12 +616,13 @@ export default class SettingsScreen extends React.Component {
                 />
               </View>
               <View>
-                <Text style={styles.title}>Освещение</Text>
+                <Text style={styles.title}>{lang.light}</Text>
                 <ListItem
-                  bottomDivider
-                  title="Вкл"
+                  title={<Text style={styles.text}>{lang.on}</Text>}
                   rightElement={
                     <CheckBox
+                      checkedIcon={<View style={styles.checked}></View>}
+                      uncheckedIcon={<View style={styles.unchecked}></View>}
                       checked={this.state.led_state}
                       onPress={() => {
                         global.ws.send(
@@ -630,28 +638,41 @@ export default class SettingsScreen extends React.Component {
                   }
                 />
                 <View style={styles.card}>
+                  <ListItem
+                    title={<Text style={styles.text}>{lang.choose_color}</Text>}
+                  />
+
                   <TouchableOpacity
                     style={{
-                      paddingHorizontal: 30,
-                      paddingVertical: 16,
-
+                      marginHorizontal: 21,
+                      marginBottom: 32,
+                      height: 70,
                       backgroundColor: this.RGBtoHEX(
                         `rgba(${this.state.R_led},${this.state.G_led},${this.state.B_led})`
                       )
                     }}
                     onPress={this._showModal}
-                  ></TouchableOpacity>
+                  />
                 </View>
               </View>
               <View>
-                <Text style={styles.title}>Время на устройстве</Text>
+                <Text style={styles.title}>{lang.time}</Text>
                 <ListItem
-                  bottomDivider
                   title={
-                    <View style={{justifyContent:'space-between',flexDirection:'row'}}>
-                      <Text>{this.state["dt_dev"].split(' ')[0]}</Text>
-                      <Text style={styles.input}>{this.state["dt_dev"].split(' ')[1]}</Text>
-                    </View>}
+                    <View
+                      style={{
+                        justifyContent: "space-between",
+                        flexDirection: "row"
+                      }}
+                    >
+                      <Text style={styles.text}>
+                        {this.state["dt_dev"].split(" ")[0]}
+                      </Text>
+                      <Text style={[styles.input, styles.text]}>
+                        {this.state["dt_dev"].split(" ")[1]}
+                      </Text>
+                    </View>
+                  }
                 />
                 <Button
                   onPress={() => {
@@ -678,16 +699,17 @@ export default class SettingsScreen extends React.Component {
                     );
                   }}
                   color="#FF6179"
-                  title="Обновить"
+                  title={lang.update}
                 >
-                  Обновить
+                  {lang.update}
                 </Button>
               </View>
               <View>
-                <Text style={styles.title}>Версии</Text>
+                <Text style={styles.title}>{lang.versions}</Text>
                 <ListItem
-                  bottomDivider
-                  title={<Text>{this.state["fw_ver"]}</Text>}
+                  title={
+                    <Text style={styles.text}>{this.state["fw_ver"]}</Text>
+                  }
                 />
               </View>
             </View>
@@ -710,7 +732,6 @@ export default class SettingsScreen extends React.Component {
               visible={this.state.visibleModal}
               onDismiss={this._hideModal}
             >
-
               <View style={{ height: 500 }}>
                 <ColorPicker
                   defaultColor={this.RGBtoHEX(
@@ -719,12 +740,10 @@ export default class SettingsScreen extends React.Component {
                   onColorSelected={color => {
                     this._hideModal();
                     let HEXcolor = this.HEXtoRGB(color, 0).split(",");
-                    let R_led = Number(HEXcolor[0])
-                    let G_led = Number(HEXcolor[1])
-                    let B_led = Number(HEXcolor[2])
-                    this.changeColor(HEXcolor)
-
-
+                    let R_led = Number(HEXcolor[0]);
+                    let G_led = Number(HEXcolor[1]);
+                    let B_led = Number(HEXcolor[2]);
+                    this.changeColor(HEXcolor);
                   }}
                   style={{ flex: 1 }}
                 />
@@ -738,26 +757,46 @@ export default class SettingsScreen extends React.Component {
 }
 
 SettingsScreen.navigationOptions = {
-  title: "Настройки"
+  title: Language.language["am"].settings_screen
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
+    fontFamily: "Arial_Unicode",
+    fontSize: 18,
     backgroundColor: "#EFFAFF"
+  },
+  text: {
+    fontSize: 18,
+    fontFamily: "Arial_Unicode"
   },
   title: {
     paddingHorizontal: 14,
     paddingVertical: 20,
     opacity: 0.5,
-    color: '#0C5D82',
-    fontFamily: "Roboto",
+    color: "#0C5D82",
+    fontFamily: "Arial_Unicode",
     fontSize: 16
   },
+  checked: {
+    backgroundColor: "#FF6179",
+    borderRadius: 30,
+    height: 33,
+    width: 33
+  },
+  unchecked: {
+    borderWidth: 1,
+    borderColor: "#FF6179",
+    borderRadius: 30,
+    height: 33,
+    width: 33
+  },
   input: {
+    minWidth: 70,
     backgroundColor: "#FFE5E9",
-    borderRadius: 5,
+    fontSize: 18,
+    textAlign: "center",
     paddingVertical: 2,
     paddingHorizontal: 6
   },

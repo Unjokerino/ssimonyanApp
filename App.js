@@ -34,7 +34,8 @@ async function loadResourcesAsync() {
       ...Ionicons.font,
       // We include SpaceMono because we use it in HomeScreen.js. Feel free to
       // remove this if you are not using it in your app
-      Roboto: require("./assets/fonts/Roboto-Regular.ttf")
+      Roboto: require("./assets/fonts/Roboto-Regular.ttf"),
+      Arial_Unicode: require("./assets/fonts/Arialuni.ttf")
     })
   ]);
 }
@@ -46,6 +47,7 @@ function handleLoadingError(error) {
 }
 
 function handleFinishLoading(setLoadingComplete) {
+  Text.defaultProps = Text.defaultProps || {};
   setLoadingComplete(true);
 }
 
