@@ -11,13 +11,15 @@ import {
   TextInput
 } from "react-native";
 
-import { Snackbar, Avatar, Button } from "react-native-paper";
+import { Snackbar, Avatar, Button, Appbar } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { Image, Divider } from "react-native-elements";
+import { Image, Divider, CheckBox } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Title } from "react-native-paper";
 import { toHsv } from "react-native-color-picker";
 import Constants from "../assets/constants";
+
+import Language from "../assets/localisation/localisation";
 
 export default class MediaScreen extends React.Component {
   constructor(...args) {
@@ -25,6 +27,7 @@ export default class MediaScreen extends React.Component {
     this.state = {
       M_shuffle: false,
       M_repeat: false,
+      lang: {},
       showReconnect: false,
       playlist: [],
       volume: 40,
@@ -44,12 +47,16 @@ export default class MediaScreen extends React.Component {
   getParams = () => {
     let snd = { media_cs_info: true };
     let playlist = { media_pl_info: true };
+    let getSettings = { get_media_setting: true };
+
     global.ws.send(JSON.stringify(snd));
-    global.ws.send('{"media_cs_name": "text"}');
+    //global.ws.send('{"media_cs_name": "text"}');
     global.ws.send(JSON.stringify(playlist));
-    global.ws.send(
-      '[{"media_pl_nm": 1, "media_pl_name":"text1"}, {"media_pl_nm": 2, "media_pl_name":"text2"}]'
-    );
+    global.ws.send(JSON.stringify(getSettings));
+    //global.ws.send(JSON.stringify(settings));
+    //global.ws.send(
+    //  '[{"media_pl_nm": 1, "media_pl_name":"text1"}, {"media_pl_nm": 2, "media_pl_name":"text2"}]'
+    //);
   };
 
   createCallbacks = () => {
@@ -73,15 +80,11 @@ export default class MediaScreen extends React.Component {
         }
       } else {
         this.setState({
-          visible: true,
-          snackbar_message: `[message] ${e.data}`,
+          //visible: true,
+          //snackbar_message: `[message] ${e.data}`,
           ...data
         });
       }
-      this.setState({
-        visible: true,
-        snackbar_message: e.data
-      });
     };
 
     global.ws.onerror = e => {
@@ -103,8 +106,17 @@ export default class MediaScreen extends React.Component {
     global.ws = new WebSocket(Constants.socketURL);
     this.createCallbacks();
   };
+  _goBack = () => {
+    this.props.navigation.goBack();
+  };
 
   componentDidMount() {
+    if (global.language != undefined) {
+      this.setState({
+        lang: Language.language[global.language]
+      });
+    }
+
     if (ws.readyState === WebSocket.OPEN) {
       this.createCallbacks();
       this.getParams();
@@ -118,12 +130,17 @@ export default class MediaScreen extends React.Component {
   }
 
   render() {
+    const lang = this.state.lang;
     return (
       <ImageBackground
         style={styles.container}
         source={require("../assets/stars.png")}
       >
-        <View
+        <Appbar.Header style={{ backgroundColor: "white", width: "100%" }}>
+          <Appbar.BackAction onPress={this._goBack} />
+          <Appbar.Content title={lang.media_screen} />
+        </Appbar.Header>
+        <ScrollView
           refreshControl={
             <RefreshControl
               refreshing={this.state.refreshing}
@@ -147,7 +164,6 @@ export default class MediaScreen extends React.Component {
           <Title style={{ textAlign: "center" }}>
             {this.state.media_cs_name}
           </Title>
-
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               onPress={() => this.sendMessage({ Media_Prev: true })}
@@ -219,24 +235,42 @@ export default class MediaScreen extends React.Component {
               />
             </TouchableOpacity>
           </View>
+
           <View style={styles.buttonContainer}>
-            <TouchableOpacity
+            <CheckBox
+              containerStyle={{ margin: 0, padding: 0 }}
+              style={{ margin: 0 }}
+              checkedIcon={
+                <TouchableOpacity containerStyle={styles.button}>
+                  <Image
+                    source={require("../assets/repeat.png")}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      resizeMode: "contain"
+                    }}
+                  />
+                </TouchableOpacity>
+              }
+              uncheckedIcon={
+                <TouchableOpacity containerStyle={styles.button}>
+                  <Image
+                    source={require("../assets/repeatD.png")}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      resizeMode: "contain"
+                    }}
+                  />
+                </TouchableOpacity>
+              }
+              checked={this.state.M_repeat}
               onPress={() => {
                 this.sendMessage({ M_repeat: !this.state.M_repeat });
-                this.setState({ M_repeat: !this.state.M_repeat });
+                this.setState({ M_repeat: !this.state.repeat });
               }}
-              containerStyle={styles.button}
-              icon={{
-                name: "repeat",
-                size: 24,
-                color: "white"
-              }}
-            >
-              <Image
-                source={require("../assets/repeatD.png")}
-                style={{ width: 40, height: 40, resizeMode: "contain" }}
-              />
-            </TouchableOpacity>
+              center
+            />
             <TouchableOpacity
               onPress={() => {
                 this.setState({
@@ -258,7 +292,7 @@ export default class MediaScreen extends React.Component {
             >
               <Image
                 source={require("../assets/VolumeD.png")}
-                style={{ width: 53, height: 40, resizeMode: "contain" }}
+                style={{ width: 40, height: 40, resizeMode: "contain" }}
               />
             </TouchableOpacity>
             <TouchableOpacity
@@ -282,46 +316,79 @@ export default class MediaScreen extends React.Component {
             >
               <Image
                 source={require("../assets/VolumeMax.png")}
-                style={{ width: 53, height: 40, resizeMode: "contain" }}
+                style={{ width: 40, height: 40, resizeMode: "contain" }}
               />
             </TouchableOpacity>
-
-            <TouchableOpacity
+            <CheckBox
+              containerStyle={{ margin: 0, padding: 0 }}
+              style={{ margin: 0 }}
+              checkedIcon={
+                <TouchableOpacity containerStyle={styles.button}>
+                  <Image
+                    source={require("../assets/mute.png")}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      resizeMode: "contain"
+                    }}
+                  />
+                </TouchableOpacity>
+              }
+              uncheckedIcon={
+                <TouchableOpacity containerStyle={styles.button}>
+                  <Image
+                    source={require("../assets/muteD.png")}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      resizeMode: "contain"
+                    }}
+                  />
+                </TouchableOpacity>
+              }
+              checked={this.state.Media_Mute}
               onPress={() => {
                 this.sendMessage({ Media_Mute: !this.state.Media_Mute });
                 this.setState({ Media_Mute: !this.state.Media_Mute });
               }}
-              containerStyle={styles.button}
-              icon={{
-                name: "volume-mute",
-                size: 24,
-                color: "white"
-              }}
-            >
-              <Image
-                source={require("../assets/muteD.png")}
-                style={{ width: 53, height: 40, resizeMode: "contain" }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
+              center
+            />
+
+            <CheckBox
+              containerStyle={{ margin: 0, padding: 0 }}
+              style={{ margin: 0 }}
+              checkedIcon={
+                <TouchableOpacity containerStyle={styles.button}>
+                  <Image
+                    source={require("../assets/shuffle.png")}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      resizeMode: "contain"
+                    }}
+                  />
+                </TouchableOpacity>
+              }
+              uncheckedIcon={
+                <TouchableOpacity containerStyle={styles.button}>
+                  <Image
+                    source={require("../assets/shuffleD.png")}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      resizeMode: "contain"
+                    }}
+                  />
+                </TouchableOpacity>
+              }
+              checked={this.state.M_shuffle}
               onPress={() => {
                 this.sendMessage({ M_shuffle: !this.state.M_shuffle });
                 this.setState({ M_shuffle: !this.state.M_shuffle });
               }}
-              containerStyle={styles.button}
-              icon={{
-                name: "shuffle",
-                size: 24,
-                color: "white"
-              }}
-            >
-              <Image
-                source={require("../assets/shuffle.png")}
-                style={{ width: 40, height: 40, resizeMode: "contain" }}
-              />
-            </TouchableOpacity>
+              center
+            />
           </View>
-
           <Divider
             style={{
               backgroundColor: "#FFE6E9",
@@ -329,6 +396,21 @@ export default class MediaScreen extends React.Component {
               height: 2
             }}
           ></Divider>
+          <View
+            style={{
+              opacity: this.state.showReconnect ? 1 : 0,
+              zIndex: 999
+            }}
+          >
+            <Button
+              disabled={this.state.showReconnect ? false : true}
+              onPress={this.openConnection}
+              title="Переподключиться"
+              color="red"
+            >
+              {lang.reconnect}
+            </Button>
+          </View>
           <FlatList
             data={this.state.playlist}
             renderItem={({ item }) => (
@@ -338,14 +420,7 @@ export default class MediaScreen extends React.Component {
             )}
             keyExtractor={item => item.media_pl_nm}
           />
-          <View style={{ opacity: this.state.showReconnect ? 1 : 0 }}>
-            <Button
-              disabled={this.state.showReconnect ? false : true}
-              onPress={this.openConnection}
-              title="Переподключиться"
-            ></Button>
-          </View>
-        </View>
+        </ScrollView>
         <Snackbar
           visible={this.state.visible}
           onDismiss={() => this.setState({ visible: false })}
@@ -364,7 +439,7 @@ export default class MediaScreen extends React.Component {
 }
 
 MediaScreen.navigationOptions = {
-  title: "Медиа"
+  headerShown: false
 };
 
 const styles = StyleSheet.create({

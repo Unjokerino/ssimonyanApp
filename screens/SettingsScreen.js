@@ -25,20 +25,28 @@ import {
   Portal,
   Text,
   Provider,
-  Button
+  Button,
+  Appbar
 } from "react-native-paper";
 
 import Constants from "../assets/constants";
 import Language from "../assets/localisation/localisation";
 
 export default class SettingsScreen extends React.Component {
+  static navigationOptions = ({ navigation }) => {
+    const { state } = navigation;
+    return {
+      headerShown: false
+    };
+  };
   constructor(...args) {
     super(...args);
     this.state = {
       date: new Date("2020-06-12T14:42:42"),
-      lang: Language.language["am"],
+      lang: Language.language["ru"],
       mode: "date",
       show: false,
+      wsopen: false,
       showReconnect: false,
       refreshing: true,
       rock_auto: false,
@@ -104,7 +112,7 @@ export default class SettingsScreen extends React.Component {
 
   changeColor = color => {
     this.setState({
-      R_led: 111,
+      R_led: color[0],
       G_led: color[1],
       B_led: color[2]
     });
@@ -139,7 +147,7 @@ export default class SettingsScreen extends React.Component {
       global.ws.send(JSON.stringify({ time_off_h: date.getHours() }));
       global.ws.send(JSON.stringify({ time_off_m: date.getMinutes() }));
     }
-    console.log(this.state);
+    console.log(1, this.state);
   };
 
   show = mode => {
@@ -154,9 +162,15 @@ export default class SettingsScreen extends React.Component {
   };
 
   loadSetting = () => {
+    this.setState({
+      refreshing: true
+    });
     if (ws.readyState !== WebSocket.OPEN) {
       this.openConnection();
     } else {
+      this.setState({
+        refreshing: false
+      });
       let getParams = { get_setting: true };
       global.ws.send(JSON.stringify(getParams));
     }
@@ -165,6 +179,7 @@ export default class SettingsScreen extends React.Component {
   createCallbacks = () => {
     global.ws.onopen = () => {
       this.setState({
+        wsopen: true,
         visible: true,
         refreshing: false,
         snackbar_message: `Соединение открыто`
@@ -175,8 +190,8 @@ export default class SettingsScreen extends React.Component {
 
     global.ws.onmessage = e => {
       this.setState({
-        visible: true,
-        snackbar_message: `[message] ${e.data}`,
+        //visible: true,
+        //snackbar_message: `[message] ${e.data}`,
         ...JSON.parse(e.data)
       });
     };
@@ -200,11 +215,20 @@ export default class SettingsScreen extends React.Component {
     this.createCallbacks();
   };
 
+  _goBack = () => {
+    this.props.navigation.goBack();
+  };
+
   componentDidMount() {
     if (global.language != undefined) {
       this.setState({
         lang: Language.language[global.language]
       });
+
+      const title = Language.language[global.language].settings_screen;
+
+      const { setParams } = this.props.navigation;
+      setParams({ title });
     }
     if (ws.readyState === WebSocket.OPEN) {
       this.createCallbacks();
@@ -237,6 +261,7 @@ export default class SettingsScreen extends React.Component {
         }`;
       //global.ws.send(params);
       this.setState({
+        wsopen: true,
         visible: true,
         refreshing: false,
         snackbar_message: `Соединение открыто`
@@ -258,6 +283,10 @@ export default class SettingsScreen extends React.Component {
 
     return (
       <Provider>
+        <Appbar.Header style={{ backgroundColor: "white" }}>
+          <Appbar.BackAction onPress={this._goBack} />
+          <Appbar.Content title={lang.settings_screen} />
+        </Appbar.Header>
         <View style={[styles.container]}>
           <ScrollView
             refreshControl={
@@ -267,7 +296,22 @@ export default class SettingsScreen extends React.Component {
               />
             }
           >
-            <View>
+            <View
+              style={{
+                display: this.state.wsopen ? "none" : "flex",
+                zIndex: 999
+              }}
+            >
+              <Button
+                disabled={this.state.wsopen ? true : false}
+                onPress={this.loadSetting}
+                title="Переподключиться"
+                color="red"
+              >
+                {lang.reconnect}
+              </Button>
+            </View>
+            <View style={{ display: this.state.wsopen ? "flex" : "none" }}>
               <View>
                 <Text style={styles.title}>{lang.rock_type}</Text>
                 <ListItem
@@ -333,12 +377,15 @@ export default class SettingsScreen extends React.Component {
                 <ListItem
                   title={
                     <RNPickerSelect
-                      value={String(this.state.time_mode)}
+                      placeholder={{}}
+                      value={this.state.time_mode}
                       onValueChange={(itemValue, itemIndex) => {
                         this.setState({ time_mode: itemValue });
-                        global.ws.send(
-                          JSON.stringify({ time_mode: itemValue })
-                        );
+                        if (this.state.wsopen) {
+                          global.ws.send(
+                            JSON.stringify({ time_mode: itemValue })
+                          );
+                        }
                       }}
                       items={[
                         { label: lang.off, value: "1" },
@@ -755,10 +802,6 @@ export default class SettingsScreen extends React.Component {
     );
   }
 }
-
-SettingsScreen.navigationOptions = {
-  title: Language.language["am"].settings_screen
-};
 
 const styles = StyleSheet.create({
   container: {

@@ -21,13 +21,22 @@ import Language from "../assets/localisation/localisation";
 export default function HomeScreen() {
   const [visible, setVisible] = useState(0);
   const [language, setLanguage] = useState(global.language);
+  const [languageList, setLanguageList] = useState(Language.language["ru"]);
   const { navigate } = useNavigation();
 
-  let lang = Language.language[global.language || "am"];
-
   useEffect(() => {
-    _retrieveData();
+    _retrieveData().then(checkLanguage());
   }, []);
+
+  function checkLanguage() {
+    if (global.language != undefined) {
+      setLanguageList(Language.language[global.language]);
+    } else {
+      setTimeout(() => {
+        checkLanguage();
+      }, 1000);
+    }
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -35,65 +44,92 @@ export default function HomeScreen() {
         style={styles.container}
         source={require("../assets/background.png")}
       >
-        <View
-          style={{
-            flexDirection: "column",
+        <ScrollView style={{ flex: 1, width: "100%" }}>
+          <View
+            style={{
+              flexDirection: "column",
 
-            width: "100%",
-            justifyContent: "center",
-            alignItems: "center"
-          }}
-        >
-          <View style={{ height: 50, width: 200, justifyContent: "center" }}>
-            <RNPickerSelect
-              style={{ color: "black" }}
-              value={global.language}
-              onValueChange={(itemValue, itemIndex) => {
-                _storeData(itemValue);
+              width: "100%",
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            <View
+              style={{
+                position: "relative",
+                left: 100,
+                height: 50,
+                width: 150,
+                justifyContent: "flex-end"
               }}
-              items={[
-                { label: "Русский", value: "ru" },
-                { label: "Հայոց լեզու", value: "am" }
-              ]}
+            >
+              <RNPickerSelect
+                placeholder={{}}
+                style={{ color: "black", justifyContent: "right" }}
+                value={global.language}
+                onValueChange={(itemValue, itemIndex) => {
+                  _storeData(itemValue);
+                  global.language = itemValue;
+                  setLanguage(itemValue);
+                  setLanguageList(Language.language[itemValue]);
+                }}
+                items={[
+                  { label: "Русский", value: "ru" },
+                  { label: "Հայոց լեզու", value: "am" }
+                ]}
+              />
+            </View>
+
+            <MenuCard
+              color="#f698a7"
+              navigate="Media"
+              icon_name="ios-play-circle"
+              text={languageList.media_screen || "Медиа"}
+            />
+
+            <MenuCard
+              color="#abc5d2"
+              navigate="Settings"
+              icon_name="ios-settings"
+              text={languageList.settings_screen}
             />
           </View>
-
-          <MenuCard
-            color="#f698a7"
-            navigate="Media"
-            icon_name="ios-play-circle"
-            text={lang.media_screen || "Медиа"}
-          />
-
-          <MenuCard
-            color="#abc5d2"
-            navigate="Settings"
-            icon_name="ios-settings"
-            text={lang.settings_screen || "Настройки"}
-          />
-        </View>
-        <View style={{ flex: 1, flexDirection: "column", marginTop: 70 }}>
-          <Image
-            source={require("../assets/logo.png")}
-            style={{ flex: 1, width: 270, height: 120 }}
-          />
-        </View>
-        <TouchableOpacity
-          style={{ marginBottom: 40 }}
-          onPress={() => {
-            navigate("AboutUs");
-          }}
-        >
-          <View style={styles.cardTextContainer}>
-            <Icon
-              name="ios-information-circle-outline"
-              type="ionicon"
-              color="black"
-              size={52}
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "column",
+              marginTop: 70,
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+              marginBottom: 70
+            }}
+          >
+            <Image
+              source={require("../assets/logo.png")}
+              style={{ flex: 1, width: 270, height: 120 }}
             />
-            <Text style={styles.title}>{}</Text>
           </View>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+            onPress={() => {
+              navigate("AboutUs");
+            }}
+          >
+            <View style={styles.cardTextContainer}>
+              <Icon
+                name="ios-information-circle-outline"
+                type="ionicon"
+                color="black"
+                size={52}
+              />
+              <Text style={styles.title}>{languageList.aboutUs_screen}</Text>
+            </View>
+          </TouchableOpacity>
+        </ScrollView>
       </ImageBackground>
     </View>
   );
@@ -106,9 +142,9 @@ HomeScreen.navigationOptions = {
 _storeData = async itemValue => {
   try {
     await AsyncStorage.setItem("localisation", itemValue || "ru");
-    console.log(value);
+    console.log(2, itemValue);
   } catch (error) {
-    // Error saving data
+    console.log(2, error);
   }
 };
 
@@ -117,8 +153,10 @@ _retrieveData = async () => {
     const value = await AsyncStorage.getItem("localisation");
     if (value !== null) {
       // We have data!!
-      console.log(value);
       global.language = value;
+      setLanguageList(Language.language[global.language]);
+      console.log(1, value);
+      return 1;
     }
   } catch (error) {
     // Error retrieving data
@@ -134,7 +172,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#eaeaea",
     justifyContent: "space-between",
     flexDirection: "column",
-    paddingTop: 60
+    paddingTop: 30
   },
   cardTextContainer: {
     flexDirection: "column",

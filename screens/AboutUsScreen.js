@@ -14,7 +14,15 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { Divider } from "react-native-elements";
 import { Icon, Image } from "react-native-elements";
 
+import Language from "../assets/localisation/localisation";
+
 export default class AboutUsScreen extends React.Component {
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      language: Language.language[global.language]
+    };
+  }
   toMail = () => {
     Linking.openURL("mailto:sales@milar.am");
     title = "sales@milar.am";
@@ -26,6 +34,7 @@ export default class AboutUsScreen extends React.Component {
     Linking.openURL("tel:37455110990");
   };
   render() {
+    const language = this.state.language;
     return (
       <ImageBackground
         style={styles.container}
@@ -33,15 +42,11 @@ export default class AboutUsScreen extends React.Component {
       >
         <ScrollView style={{ paddingHorizontal: 16 }}>
           <View style={styles.textContainer}>
-            <Text style={styles.text}>
-              Уникальная умная кровать Mi lar для малыша станет незаменимым
-              помощником в воспитании!
-            </Text>
+            <Text style={styles.text}>{language.desciption_first_part}</Text>
             <View
               style={{
-                flex: 1,
                 justifyContent: "center",
-                flexDirection: "column",
+
                 alignItems: "center"
               }}
             >
@@ -50,13 +55,13 @@ export default class AboutUsScreen extends React.Component {
                 style={{ width: 500, height: 300 }}
               />
             </View>
-            <Text style={styles.text}>
-              Натуральные материалы и специальная конструкция обеспечит
-              безопасность малыша, а широкий функционал облегчит задачу
-              родителей.
-            </Text>
+            <Text style={styles.text}>{language.desciption_second_part}</Text>
             <Divider
-              style={{ backgroundColor: "#FFE6E9", marginVertical: 13 }}
+              style={{
+                backgroundColor: "#FFE6E9",
+                marginVertical: 13,
+                height: 2
+              }}
             ></Divider>
           </View>
           <View>
@@ -91,7 +96,7 @@ export default class AboutUsScreen extends React.Component {
 }
 
 AboutUsScreen.navigationOptions = {
-  title: "О приложении"
+  title: "О нас"
 };
 
 const styles = StyleSheet.create({
@@ -101,8 +106,8 @@ const styles = StyleSheet.create({
     flex: 1
   },
   image_icon: {
-    width: 40,
-    height: 40
+    width: 33,
+    height: 33
   },
   contact: {
     marginLeft: 15,
@@ -119,7 +124,7 @@ const styles = StyleSheet.create({
     paddingVertical: 25
   },
   text: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: "Arial_Unicode"
   },
   title: {
