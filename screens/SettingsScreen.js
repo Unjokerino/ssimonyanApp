@@ -614,7 +614,7 @@ export default class SettingsScreen extends React.Component {
                   <ListItem
                     title={
                       <View>
-                        <Text style={styles.text}>{lang.dur}</Text>
+                        <Text style={styles.text}>{lang.mot_sens}</Text>
                         <Slider
                           minimumTrackTintColor={"#FFBFC9"}
                           thumbTintColor={"#FFBFC9"}
