@@ -27,7 +27,7 @@ export default class MediaScreen extends React.Component {
     this.state = {
       M_shuffle: false,
       M_repeat: false,
-      lang: Language.language['ru'],
+      lang: Language.language["ru"],
       showReconnect: false,
       playlist: [],
       volume: 40,
@@ -143,7 +143,7 @@ export default class MediaScreen extends React.Component {
           <Appbar.Content title={lang.media_screen} />
         </Appbar.Header>
         <ScrollView
-        showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
               refreshing={this.state.refreshing}
@@ -167,230 +167,232 @@ export default class MediaScreen extends React.Component {
           <Title style={{ textAlign: "center" }}>
             {this.state.media_cs_name}
           </Title>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              onPress={() => this.sendMessage({ Media_Prev: true })}
-              containerStyle={styles.button}
-              type="clear"
-              icon={{
-                name: "skip-previous",
-                size: 24,
-                color: "#2389de"
-              }}
-            >
-              <Image
-                source={require("../assets/prev.png")}
-                style={{ width: 30, height: 40, resizeMode: "cover" }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => this.sendMessage({ Media_Stop: true })}
-              containerStyle={styles.button}
-              icon={{
-                name: "stop",
-                size: 28,
+          <View style={{ display: this.state.showReconnect ? "none" : "flex" }}>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                onPress={() => this.sendMessage({ Media_Prev: true })}
+                containerStyle={styles.button}
+                type="clear"
+                icon={{
+                  name: "skip-previous",
+                  size: 24,
+                  color: "#2389de"
+                }}
+              >
+                <Image
+                  source={require("../assets/prev.png")}
+                  style={{ width: 30, height: 40, resizeMode: "cover" }}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => this.sendMessage({ Media_Stop: true })}
+                containerStyle={styles.button}
+                icon={{
+                  name: "stop",
+                  size: 28,
 
-                color: "white"
-              }}
-            >
-              <Image
-                source={require("../assets/stop.png")}
-                style={{ width: 40, height: 40, resizeMode: "contain" }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => this.sendMessage({ Media_Pause: true })}
-              containerStyle={styles.button}
-              icon={{
-                name: "pause",
-                size: 28,
-                color: "white"
-              }}
-            >
-              <Image
-                source={require("../assets/pause.png")}
-                style={{ width: 40, height: 40, resizeMode: "contain" }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              containerStyle={styles.button}
-              onPress={() => this.sendMessage({ Media_Play: true })}
-            >
-              <Image
-                source={require("../assets/play.png")}
-                style={{ width: 30, height: 40, resizeMode: "contain" }}
-              />
-            </TouchableOpacity>
+                  color: "white"
+                }}
+              >
+                <Image
+                  source={require("../assets/stop.png")}
+                  style={{ width: 40, height: 40, resizeMode: "contain" }}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => this.sendMessage({ Media_Pause: true })}
+                containerStyle={styles.button}
+                icon={{
+                  name: "pause",
+                  size: 28,
+                  color: "white"
+                }}
+              >
+                <Image
+                  source={require("../assets/pause.png")}
+                  style={{ width: 40, height: 40, resizeMode: "contain" }}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                containerStyle={styles.button}
+                onPress={() => this.sendMessage({ Media_Play: true })}
+              >
+                <Image
+                  source={require("../assets/play.png")}
+                  style={{ width: 30, height: 40, resizeMode: "contain" }}
+                />
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={() => this.sendMessage({ Media_Next: true })}
-              containerStyle={styles.button}
-              type="clear"
-              icon={{
-                name: "skip-next",
-                size: 24,
-                color: "#2389de"
-              }}
-            >
-              <Image
-                source={require("../assets/next.png")}
-                style={{ width: 30, height: 40, resizeMode: "contain" }}
-              />
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity
+                onPress={() => this.sendMessage({ Media_Next: true })}
+                containerStyle={styles.button}
+                type="clear"
+                icon={{
+                  name: "skip-next",
+                  size: 24,
+                  color: "#2389de"
+                }}
+              >
+                <Image
+                  source={require("../assets/next.png")}
+                  style={{ width: 30, height: 40, resizeMode: "contain" }}
+                />
+              </TouchableOpacity>
+            </View>
 
-          <View style={styles.buttonContainer}>
-            <CheckBox
-              containerStyle={{ margin: 0, padding: 0 }}
-              style={{ margin: 0 }}
-              checkedIcon={
-                <TouchableOpacity containerStyle={styles.button}>
-                  <Image
-                    source={require("../assets/repeat.png")}
-                    style={{
-                      width: 40,
-                      height: 40,
-                      resizeMode: "contain"
-                    }}
-                  />
-                </TouchableOpacity>
-              }
-              uncheckedIcon={
-                <TouchableOpacity containerStyle={styles.button}>
-                  <Image
-                    source={require("../assets/repeatD.png")}
-                    style={{
-                      width: 40,
-                      height: 40,
-                      resizeMode: "contain"
-                    }}
-                  />
-                </TouchableOpacity>
-              }
-              checked={this.state.M_repeat}
-              onPress={() => {
-                this.sendMessage({ M_repeat: !this.state.M_repeat });
-                this.setState({ M_repeat: !this.state.repeat });
-              }}
-              center
-            />
-            <TouchableOpacity
-              onPress={() => {
-                this.setState({
-                  volume: this.state.volume - 10
-                });
-                this.sendMessage({
-                  Media_Vol:
-                    this.state.volume > 0
-                      ? this.state.volume - 10
-                      : this.state.volume
-                });
-              }}
-              containerStyle={styles.button}
-              icon={{
-                name: "volume-down",
-                size: 24,
-                color: "white"
-              }}
-            >
-              <Image
-                source={require("../assets/VolumeD.png")}
-                style={{ width: 40, height: 40, resizeMode: "contain" }}
+            <View style={styles.buttonContainer}>
+              <CheckBox
+                containerStyle={{ margin: 0, padding: 0 }}
+                style={{ margin: 0 }}
+                checkedIcon={
+                  <TouchableOpacity containerStyle={styles.button}>
+                    <Image
+                      source={require("../assets/repeat.png")}
+                      style={{
+                        width: 40,
+                        height: 40,
+                        resizeMode: "contain"
+                      }}
+                    />
+                  </TouchableOpacity>
+                }
+                uncheckedIcon={
+                  <TouchableOpacity containerStyle={styles.button}>
+                    <Image
+                      source={require("../assets/repeatD.png")}
+                      style={{
+                        width: 40,
+                        height: 40,
+                        resizeMode: "contain"
+                      }}
+                    />
+                  </TouchableOpacity>
+                }
+                checked={this.state.M_repeat}
+                onPress={() => {
+                  this.sendMessage({ M_repeat: !this.state.M_repeat });
+                  this.setState({ M_repeat: !this.state.repeat });
+                }}
+                center
               />
-            </TouchableOpacity>
-       
-            <CheckBox
-              containerStyle={{ margin: 0, padding: 0 }}
-              style={{ margin: 0 }}
-              checkedIcon={
-                <TouchableOpacity containerStyle={styles.button}>
-                  <Image
-                    source={require("../assets/mute.png")}
-                    style={{
-                      width: 40,
-                      height: 40,
-                      resizeMode: "contain"
-                    }}
-                  />
-                </TouchableOpacity>
-              }
-              uncheckedIcon={
-                <TouchableOpacity containerStyle={styles.button}>
-                  <Image
-                    source={require("../assets/muteD.png")}
-                    style={{
-                      width: 40,
-                      height: 40,
-                      resizeMode: "contain"
-                    }}
-                  />
-                </TouchableOpacity>
-              }
-              checked={this.state.Media_Mute}
-              onPress={() => {
-                this.sendMessage({ Media_Mute: !this.state.Media_Mute });
-                this.setState({ Media_Mute: !this.state.Media_Mute });
-              }}
-              center
-            />
-     <TouchableOpacity
-              containerStyle={styles.button}
-              onPress={() => {
-                this.setState({
-                  volume: this.state.volume + 10
-                });
-                this.sendMessage({
-                  Media_Vol:
-                    this.state.volume < 100
-                      ? this.state.volume + 10
-                      : this.state.volume
-                });
-              }}
-              icon={{
-                name: "volume-up",
-                size: 24,
-                color: "white"
-              }}
-            >
-              <Image
-                source={require("../assets/VolumeMax.png")}
-                style={{ width: 40, height: 40, resizeMode: "contain" }}
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({
+                    volume: this.state.volume - 10
+                  });
+                  this.sendMessage({
+                    Media_Vol:
+                      this.state.volume > 0
+                        ? this.state.volume - 10
+                        : this.state.volume
+                  });
+                }}
+                containerStyle={styles.button}
+                icon={{
+                  name: "volume-down",
+                  size: 24,
+                  color: "white"
+                }}
+              >
+                <Image
+                  source={require("../assets/VolumeMin.png")}
+                  style={{ width: 40, height: 40, resizeMode: "contain" }}
+                />
+              </TouchableOpacity>
+
+              <CheckBox
+                containerStyle={{ margin: 0, padding: 0 }}
+                style={{ margin: 0 }}
+                checkedIcon={
+                  <TouchableOpacity containerStyle={styles.button}>
+                    <Image
+                      source={require("../assets/mute.png")}
+                      style={{
+                        width: 40,
+                        height: 40,
+                        resizeMode: "contain"
+                      }}
+                    />
+                  </TouchableOpacity>
+                }
+                uncheckedIcon={
+                  <TouchableOpacity containerStyle={styles.button}>
+                    <Image
+                      source={require("../assets/muteD.png")}
+                      style={{
+                        width: 40,
+                        height: 40,
+                        resizeMode: "contain"
+                      }}
+                    />
+                  </TouchableOpacity>
+                }
+                checked={this.state.Media_Mute}
+                onPress={() => {
+                  this.sendMessage({ Media_Mute: !this.state.Media_Mute });
+                  this.setState({ Media_Mute: !this.state.Media_Mute });
+                }}
+                center
               />
-            </TouchableOpacity>
-            <CheckBox
-              containerStyle={{ margin: 0, padding: 0 }}
-              style={{ margin: 0 }}
-              checkedIcon={
-                <TouchableOpacity containerStyle={styles.button}>
-                  <Image
-                    source={require("../assets/shuffle.png")}
-                    style={{
-                      width: 40,
-                      height: 40,
-                      resizeMode: "contain"
-                    }}
-                  />
-                </TouchableOpacity>
-              }
-              uncheckedIcon={
-                <TouchableOpacity containerStyle={styles.button}>
-                  <Image
-                    source={require("../assets/shuffleD.png")}
-                    style={{
-                      width: 40,
-                      height: 40,
-                      resizeMode: "contain"
-                    }}
-                  />
-                </TouchableOpacity>
-              }
-              checked={this.state.M_shuffle}
-              onPress={() => {
-                this.sendMessage({ M_shuffle: !this.state.M_shuffle });
-                this.setState({ M_shuffle: !this.state.M_shuffle });
-              }}
-              center
-            />
+              <TouchableOpacity
+                containerStyle={styles.button}
+                onPress={() => {
+                  this.setState({
+                    volume: this.state.volume + 10
+                  });
+                  this.sendMessage({
+                    Media_Vol:
+                      this.state.volume < 100
+                        ? this.state.volume + 10
+                        : this.state.volume
+                  });
+                }}
+                icon={{
+                  name: "volume-up",
+                  size: 24,
+                  color: "white"
+                }}
+              >
+                <Image
+                  source={require("../assets/VolumeMax.png")}
+                  style={{ width: 40, height: 40, resizeMode: "contain" }}
+                />
+              </TouchableOpacity>
+              <CheckBox
+                containerStyle={{ margin: 0, padding: 0 }}
+                style={{ margin: 0 }}
+                checkedIcon={
+                  <TouchableOpacity containerStyle={styles.button}>
+                    <Image
+                      source={require("../assets/shuffle.png")}
+                      style={{
+                        width: 40,
+                        height: 40,
+                        resizeMode: "contain"
+                      }}
+                    />
+                  </TouchableOpacity>
+                }
+                uncheckedIcon={
+                  <TouchableOpacity containerStyle={styles.button}>
+                    <Image
+                      source={require("../assets/shuffleD.png")}
+                      style={{
+                        width: 40,
+                        height: 40,
+                        resizeMode: "contain"
+                      }}
+                    />
+                  </TouchableOpacity>
+                }
+                checked={this.state.M_shuffle}
+                onPress={() => {
+                  this.sendMessage({ M_shuffle: !this.state.M_shuffle });
+                  this.setState({ M_shuffle: !this.state.M_shuffle });
+                }}
+                center
+              />
+            </View>
           </View>
           <Divider
             style={{
@@ -401,7 +403,7 @@ export default class MediaScreen extends React.Component {
           ></Divider>
           <View
             style={{
-              display: this.state.showReconnect ? 'flex' : 'none',
+              display: this.state.showReconnect ? "flex" : "none",
               zIndex: 999
             }}
           >

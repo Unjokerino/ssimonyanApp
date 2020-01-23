@@ -48,7 +48,7 @@ export default function HomeScreen() {
           <View
             style={{
               flexDirection: "column",
-              
+
               width: "100%",
               justifyContent: "center",
               alignItems: "center"
@@ -56,21 +56,25 @@ export default function HomeScreen() {
           >
             <View
               style={{
-                textAlign:'right',
-                
+                textAlign: "right",
+
                 position: "relative",
-                
+
                 height: 50,
-                marginBottom:10,
-                alignItems:'center',
+                width: 150,
+                marginBottom: 10,
+                alignItems: "center",
                 justifyContent: "flex-end"
               }}
             >
               <RNPickerSelect
-                
                 placeholder={{}}
-                
-                style={{fontSize:18, color: "black", justifyContent: "right",display:'flex' }}
+                style={{
+                  fontSize: 18,
+                  color: "black",
+                  justifyContent: "right",
+                  display: "flex"
+                }}
                 value={global.language}
                 onValueChange={(itemValue, itemIndex) => {
                   _storeData(itemValue);
@@ -107,7 +111,7 @@ export default function HomeScreen() {
               justifyContent: "center",
               alignItems: "center",
               width: "100%",
-              
+
               marginBottom: 70
             }}
           >
@@ -115,30 +119,29 @@ export default function HomeScreen() {
               source={require("../assets/logo.png")}
               style={{ flex: 1, width: 270, height: 120 }}
             />
-            <View style={{flex:1}}></View>
+            <View style={{ flex: 1 }}></View>
           </View>
-    
         </ScrollView>
         <TouchableOpacity
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              marginBottom:15,
-            }}
-            onPress={() => {
-              navigate("AboutUs");
-            }}
-          >
-            <View style={styles.cardTextContainer}>
-              <Icon
-                name="ios-information-circle-outline"
-                type="ionicon"
-                color="black"
-                size={52}
-              />
-              <Text style={styles.title}>{languageList.aboutUs_screen}</Text>
-            </View>
-          </TouchableOpacity>
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            marginBottom: 15
+          }}
+          onPress={() => {
+            navigate("AboutUs");
+          }}
+        >
+          <View style={styles.cardTextContainer}>
+            <Icon
+              name="ios-information-circle-outline"
+              type="ionicon"
+              color="black"
+              size={52}
+            />
+            <Text style={styles.title}>{languageList.aboutUs_screen}</Text>
+          </View>
+        </TouchableOpacity>
       </ImageBackground>
     </View>
   );
@@ -176,7 +179,7 @@ const styles = StyleSheet.create({
   container: {
     display: "flex",
     flex: 1,
-    
+
     flexWrap: "wrap",
     alignItems: "center",
     backgroundColor: "#eaeaea",
@@ -188,7 +191,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     flexDirection: "row",
     alignItems: "center",
-    marginBottom:18,
+    marginBottom: 18
   },
   title: {
     fontSize: 20,
