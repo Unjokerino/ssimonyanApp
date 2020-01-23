@@ -48,7 +48,7 @@ export default function HomeScreen() {
           <View
             style={{
               flexDirection: "column",
-
+              
               width: "100%",
               justifyContent: "center",
               alignItems: "center"
@@ -56,16 +56,21 @@ export default function HomeScreen() {
           >
             <View
               style={{
+                textAlign:'right',
+                
                 position: "relative",
-                left: 100,
+                
                 height: 50,
-                width: 150,
+                marginBottom:10,
+                alignItems:'center',
                 justifyContent: "flex-end"
               }}
             >
               <RNPickerSelect
+                
                 placeholder={{}}
-                style={{ color: "black", justifyContent: "right" }}
+                
+                style={{fontSize:18, color: "black", justifyContent: "right",display:'flex' }}
                 value={global.language}
                 onValueChange={(itemValue, itemIndex) => {
                   _storeData(itemValue);
@@ -102,6 +107,7 @@ export default function HomeScreen() {
               justifyContent: "center",
               alignItems: "center",
               width: "100%",
+              
               marginBottom: 70
             }}
           >
@@ -109,11 +115,15 @@ export default function HomeScreen() {
               source={require("../assets/logo.png")}
               style={{ flex: 1, width: 270, height: 120 }}
             />
+            <View style={{flex:1}}></View>
           </View>
-          <TouchableOpacity
+    
+        </ScrollView>
+        <TouchableOpacity
             style={{
               justifyContent: "center",
-              alignItems: "center"
+              alignItems: "center",
+              marginBottom:15,
             }}
             onPress={() => {
               navigate("AboutUs");
@@ -129,7 +139,6 @@ export default function HomeScreen() {
               <Text style={styles.title}>{languageList.aboutUs_screen}</Text>
             </View>
           </TouchableOpacity>
-        </ScrollView>
       </ImageBackground>
     </View>
   );
@@ -167,6 +176,7 @@ const styles = StyleSheet.create({
   container: {
     display: "flex",
     flex: 1,
+    
     flexWrap: "wrap",
     alignItems: "center",
     backgroundColor: "#eaeaea",
@@ -177,7 +187,8 @@ const styles = StyleSheet.create({
   cardTextContainer: {
     flexDirection: "column",
     flexDirection: "row",
-    alignItems: "center"
+    alignItems: "center",
+    marginBottom:18,
   },
   title: {
     fontSize: 20,

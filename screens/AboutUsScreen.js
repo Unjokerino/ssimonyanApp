@@ -9,7 +9,7 @@ import {
   TextInput,
   ImageBackground
 } from "react-native";
-import { Snackbar, Button, Avatar } from "react-native-paper";
+import { Snackbar, Button, Avatar,Appbar } from "react-native-paper";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Divider } from "react-native-elements";
 import { Icon, Image } from "react-native-elements";
@@ -20,7 +20,7 @@ export default class AboutUsScreen extends React.Component {
   constructor(...args) {
     super(...args);
     this.state = {
-      language: Language.language[global.language]
+      language: Language.language['ru']
     };
   }
   toMail = () => {
@@ -33,13 +33,32 @@ export default class AboutUsScreen extends React.Component {
   toViber = () => {
     Linking.openURL("tel:37455110990");
   };
+
+  componentDidMount(){
+    console.log('global',global.language)
+    if(global.language != undefined){
+      this.setState({
+        language:Language.language[global.language]
+      })
+    }
+  }
+
+  _goBack = () =>{
+    this.props.navigation.goBack()
+  }
   render() {
     const language = this.state.language;
+    
     return (
+      
       <ImageBackground
         style={styles.container}
         source={require("../assets/stars.png")}
       >
+           <Appbar.Header style={{ backgroundColor: "white", width: "100%" }}>
+          <Appbar.BackAction onPress={this._goBack} />
+          <Appbar.Content title={language.media_screen} />
+        </Appbar.Header>
         <ScrollView style={{ paddingHorizontal: 16 }}>
           <View style={styles.textContainer}>
             <Text style={styles.text}>{language.desciption_first_part}</Text>
@@ -96,7 +115,7 @@ export default class AboutUsScreen extends React.Component {
 }
 
 AboutUsScreen.navigationOptions = {
-  title: "О нас"
+ headerShown:false
 };
 
 const styles = StyleSheet.create({

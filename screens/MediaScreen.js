@@ -27,7 +27,7 @@ export default class MediaScreen extends React.Component {
     this.state = {
       M_shuffle: false,
       M_repeat: false,
-      lang: {},
+      lang: Language.language['ru'],
       showReconnect: false,
       playlist: [],
       volume: 40,
@@ -54,9 +54,11 @@ export default class MediaScreen extends React.Component {
     global.ws.send(JSON.stringify(playlist));
     global.ws.send(JSON.stringify(getSettings));
     //global.ws.send(JSON.stringify(settings));
-    //global.ws.send(
-    //  '[{"media_pl_nm": 1, "media_pl_name":"text1"}, {"media_pl_nm": 2, "media_pl_name":"text2"}]'
-    //);
+    /*
+    global.ws.send(
+    '[{"media_pl_nm": 1, "media_pl_name":"text1"}, {"media_pl_nm": 2, "media_pl_name":"text2"}]'
+    );
+    */
   };
 
   createCallbacks = () => {
@@ -141,6 +143,7 @@ export default class MediaScreen extends React.Component {
           <Appbar.Content title={lang.media_screen} />
         </Appbar.Header>
         <ScrollView
+        showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
               refreshing={this.state.refreshing}
@@ -295,30 +298,7 @@ export default class MediaScreen extends React.Component {
                 style={{ width: 40, height: 40, resizeMode: "contain" }}
               />
             </TouchableOpacity>
-            <TouchableOpacity
-              containerStyle={styles.button}
-              onPress={() => {
-                this.setState({
-                  volume: this.state.volume + 10
-                });
-                this.sendMessage({
-                  Media_Vol:
-                    this.state.volume < 100
-                      ? this.state.volume + 10
-                      : this.state.volume
-                });
-              }}
-              icon={{
-                name: "volume-up",
-                size: 24,
-                color: "white"
-              }}
-            >
-              <Image
-                source={require("../assets/VolumeMax.png")}
-                style={{ width: 40, height: 40, resizeMode: "contain" }}
-              />
-            </TouchableOpacity>
+       
             <CheckBox
               containerStyle={{ margin: 0, padding: 0 }}
               style={{ margin: 0 }}
@@ -353,7 +333,30 @@ export default class MediaScreen extends React.Component {
               }}
               center
             />
-
+     <TouchableOpacity
+              containerStyle={styles.button}
+              onPress={() => {
+                this.setState({
+                  volume: this.state.volume + 10
+                });
+                this.sendMessage({
+                  Media_Vol:
+                    this.state.volume < 100
+                      ? this.state.volume + 10
+                      : this.state.volume
+                });
+              }}
+              icon={{
+                name: "volume-up",
+                size: 24,
+                color: "white"
+              }}
+            >
+              <Image
+                source={require("../assets/VolumeMax.png")}
+                style={{ width: 40, height: 40, resizeMode: "contain" }}
+              />
+            </TouchableOpacity>
             <CheckBox
               containerStyle={{ margin: 0, padding: 0 }}
               style={{ margin: 0 }}
@@ -398,7 +401,7 @@ export default class MediaScreen extends React.Component {
           ></Divider>
           <View
             style={{
-              opacity: this.state.showReconnect ? 1 : 0,
+              display: this.state.showReconnect ? 'flex' : 'none',
               zIndex: 999
             }}
           >
