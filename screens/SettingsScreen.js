@@ -147,7 +147,6 @@ export default class SettingsScreen extends React.Component {
       global.ws.send(JSON.stringify({ time_off_h: date.getHours() }));
       global.ws.send(JSON.stringify({ time_off_m: date.getMinutes() }));
     }
-    console.log(1, this.state);
   };
 
   show = mode => {
@@ -182,13 +181,14 @@ export default class SettingsScreen extends React.Component {
         wsopen: true,
         visible: true,
         refreshing: false,
-        snackbar_message: `Соединение открыто`
+        snackbar_message: this.state.lang.connection_opened
       });
       let getParams = { get_setting: true };
       global.ws.send(JSON.stringify(getParams));
     };
 
     global.ws.onmessage = e => {
+      console.log(e.data);
       this.setState({
         //visible: true,
         //snackbar_message: `[message] ${e.data}`,
@@ -200,7 +200,7 @@ export default class SettingsScreen extends React.Component {
       this.setState({
         visible: true,
         refreshing: false,
-        snackbar_message: `Проблема подключения с устройством, обновите экран что бы переподключиться`
+        snackbar_message: this.state.lang.connection_error
       });
     };
 
@@ -262,16 +262,15 @@ export default class SettingsScreen extends React.Component {
       //global.ws.send(params);
       this.setState({
         wsopen: true,
-        visible: true,
-        refreshing: false,
-        snackbar_message: `Соединение открыто`
+
+        refreshing: false
       });
     } else {
       this.setState({
-        visible: true,
+        //visible: true,
         showReconnect: true,
-        refreshing: false,
-        snackbar_message: `Соединение отсутсвует, обновите экран что бы переподключиться`
+        refreshing: false
+        //snackbar_message: this.state.lang.connection_error
       });
     }
   }

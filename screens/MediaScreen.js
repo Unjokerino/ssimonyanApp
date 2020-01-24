@@ -41,7 +41,7 @@ export default class MediaScreen extends React.Component {
   sendMessage = message => {
     let snd = { media_cs_info: true };
     global.ws.send(JSON.stringify(message));
-    global.ws.send(JSON.stringify(snd));
+    //global.ws.send(JSON.stringify(snd));
   };
 
   getParams = () => {
@@ -56,7 +56,7 @@ export default class MediaScreen extends React.Component {
     //global.ws.send(JSON.stringify(settings));
     /*
     global.ws.send(
-    '[{"media_pl_nm": 1, "media_pl_name":"text1"}, {"media_pl_nm": 2, "media_pl_name":"text2"}]'
+      '[{"media_pl_nm": 1, "media_pl_name":"text1"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}]'
     );
     */
   };
@@ -67,7 +67,7 @@ export default class MediaScreen extends React.Component {
         visible: true,
         showReconnect: false,
         refreshing: false,
-        snackbar_message: `Соединение открыто`
+        snackbar_message: this.state.lang.connection_opened
       });
       this.getParams();
     };
@@ -81,6 +81,7 @@ export default class MediaScreen extends React.Component {
           });
         }
       } else {
+        console.log(e.data);
         this.setState({
           //visible: true,
           //snackbar_message: `[message] ${e.data}`,
@@ -94,7 +95,7 @@ export default class MediaScreen extends React.Component {
         visible: true,
         refreshing: false,
         showReconnect: true,
-        snackbar_message: `Проблема подключения с устройством`
+        snackbar_message: this.state.lang.connection_error
       });
     };
 
@@ -126,7 +127,7 @@ export default class MediaScreen extends React.Component {
       this.openConnection();
       this.setState({
         showReconnect: true,
-        snackbar_message: `Соединение отсутсвует`
+        snackbar_message: this.state.lang.connection_error
       });
     }
   }
@@ -142,7 +143,7 @@ export default class MediaScreen extends React.Component {
           <Appbar.BackAction onPress={this._goBack} />
           <Appbar.Content title={lang.media_screen} />
         </Appbar.Header>
-        <ScrollView
+        <View
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -278,13 +279,13 @@ export default class MediaScreen extends React.Component {
               <TouchableOpacity
                 onPress={() => {
                   this.setState({
-                    volume: this.state.volume - 10
-                  });
-                  this.sendMessage({
-                    Media_Vol:
+                    volume:
                       this.state.volume > 0
                         ? this.state.volume - 10
                         : this.state.volume
+                  });
+                  this.sendMessage({
+                    Media_Vol: this.state.volume
                   });
                 }}
                 containerStyle={styles.button}
@@ -338,13 +339,13 @@ export default class MediaScreen extends React.Component {
                 containerStyle={styles.button}
                 onPress={() => {
                   this.setState({
-                    volume: this.state.volume + 10
-                  });
-                  this.sendMessage({
-                    Media_Vol:
+                    volume:
                       this.state.volume < 100
                         ? this.state.volume + 10
                         : this.state.volume
+                  });
+                  this.sendMessage({
+                    Media_Vol: this.state.volume
                   });
                 }}
                 icon={{
@@ -397,35 +398,37 @@ export default class MediaScreen extends React.Component {
           <Divider
             style={{
               backgroundColor: "#FFE6E9",
-              marginVertical: 13,
+              marginTop: 13,
               height: 2
             }}
-          ></Divider>
+          />
           <View
             style={{
-              display: this.state.showReconnect ? "flex" : "none",
-              zIndex: 999
+              display: this.state.showReconnect ? "flex" : "none"
             }}
           >
             <Button
               disabled={this.state.showReconnect ? false : true}
               onPress={this.openConnection}
-              title="Переподключиться"
               color="red"
+              title="Переподключиться"
             >
               {lang.reconnect}
             </Button>
           </View>
-          <FlatList
-            data={this.state.playlist}
-            renderItem={({ item }) => (
+        </View>
+        <FlatList
+          style={{ width: "100%" }}
+          data={this.state.playlist}
+          renderItem={({ item }) => (
+            <TouchableOpacity>
               <Text style={{ fontSize: 22, textAlign: "center" }}>
                 {item.media_pl_name}
               </Text>
-            )}
-            keyExtractor={item => item.media_pl_nm}
-          />
-        </ScrollView>
+            </TouchableOpacity>
+          )}
+          keyExtractor={item => item.media_pl_nm}
+        />
         <Snackbar
           visible={this.state.visible}
           onDismiss={() => this.setState({ visible: false })}
