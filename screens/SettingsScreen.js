@@ -51,7 +51,7 @@ export default class SettingsScreen extends React.Component {
       refreshing: true,
       rock_auto: false,
       rock_state: false,
-      time_mode: 3,
+      time_mode: 1,
       time_on_h: 19,
       time_on_m: 12,
       time_off_h: 19,
@@ -63,14 +63,14 @@ export default class SettingsScreen extends React.Component {
       rock_voice_en: false,
       rock_voice_time: 5,
       rock_voice_sens: 6,
-      rock_motion_en: true,
+      rock_motion_en: false,
       rock_motion_time: 2,
       rock_motion_sens: 4,
-      media_active: true,
-      led_state: true,
+      media_active: false,
+      led_state: false,
       R_led: 255,
       G_led: 0,
-      B_led: 115,
+      B_led: 255,
       dt_dev: "21/01/2020 15:35:22",
       dt_now: "21/01/2020 15:35:22",
       fw_ver: "v1.0_beta",
@@ -235,29 +235,29 @@ export default class SettingsScreen extends React.Component {
       let getParams = { get_setting: true };
       global.ws.send(JSON.stringify(getParams));
       let params = `{
-        "rock_auto": false,
-        "rock_state": false,
-        "time_mode": 2, 
-        "time_on_h": 19, 
-        "time_on_m": 12, 
-        "time_off_h": 19, 
-        "time_off_m": 30, 
-        "time_dur": 2, 
-        "time_pause": 3, 
-        "rock_voice_en": false, 
+        "rock_auto": true,
+        "rock_state": true,
+        "time_mode": 3, 
+        "time_on_h": 5, 
+        "time_on_m": 5, 
+        "time_off_h": 5, 
+        "time_off_m": 5, 
+        "time_dur": 5, 
+        "time_pause": 5, 
+        "rock_voice_en": true, 
         "rock_voice_time": 5,
-        "rock_voice_sens ": 6,
+        "rock_voice_sens": 5,
         "rock_motion_en": true, 
-        "rock_motion_time": 2,
-        "rock_motion_sens ": 4,
+        "rock_motion_time": 5,
+        "rock_motion_sens": 5,
         "media_active": true, 
         "led_state": true, 
         "R_led": 113, 
-        "G_led": 0, 
-        "B_led": 115, 
-        "dt_dev": "21/01/2020 15:35:22",
-        "dt_now": "21/01/2020 15:35:22",
-        "fw_ver": "v1.0_beta"
+        "G_led": 255, 
+        "B_led": 255, 
+        "dt_dev": "21/01/2020 12:35:22",
+        "dt_now": "21/01/2020 12:35:22",
+        "fw_ver": "v1.1_beta"
         }`;
       //global.ws.send(params);
       this.setState({
@@ -379,17 +379,20 @@ export default class SettingsScreen extends React.Component {
                       placeholder={{}}
                       value={this.state.time_mode}
                       onValueChange={(itemValue, itemIndex) => {
-                        this.setState({ time_mode: itemValue });
-                        if (this.state.wsopen) {
-                          global.ws.send(
-                            JSON.stringify({ time_mode: itemValue })
-                          );
+                        if (itemValue != this.state.time_mode) {
+                          this.setState({ time_mode: itemValue });
+                          console.log(itemValue, this.state.time_mode);
+                          if (this.state.wsopen) {
+                            global.ws.send(
+                              JSON.stringify({ time_mode: itemValue })
+                            );
+                          }
                         }
                       }}
                       items={[
-                        { label: lang.off, value: "1" },
-                        { label: lang.solo, value: "2" },
-                        { label: lang.multi, value: "3" }
+                        { label: lang.off, value: 1 },
+                        { label: lang.solo, value: 2 },
+                        { label: lang.multi, value: 3 }
                       ]}
                     />
                   }
@@ -571,15 +574,15 @@ export default class SettingsScreen extends React.Component {
                     <CheckBox
                       checkedIcon={<View style={styles.checked}></View>}
                       uncheckedIcon={<View style={styles.unchecked}></View>}
-                      checked={this.state["rock_moition_en"]}
+                      checked={this.state.rock_motion_en}
                       onPress={() => {
                         global.ws.send(
                           JSON.stringify({
-                            rock_moition_en: !this.state.rock_moition_en
+                            rock_motion_en: !this.state.rock_motion_en
                           })
                         );
                         this.setState({
-                          rock_moition_en: !this.state["rock_moition_en"]
+                          rock_motion_en: !this.state.rock_motion_en
                         });
                       }}
                     />
@@ -587,7 +590,7 @@ export default class SettingsScreen extends React.Component {
                 />
                 <View
                   style={[
-                    { opacity: this.state["rock_moition_en"] ? 1 : 0.5 },
+                    { opacity: this.state["rock_motion_en"] ? 1 : 0.5 },
                     styles.card
                   ]}
                 >

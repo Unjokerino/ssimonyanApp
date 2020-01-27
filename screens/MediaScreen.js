@@ -41,24 +41,28 @@ export default class MediaScreen extends React.Component {
   sendMessage = message => {
     let snd = { media_cs_info: true };
     global.ws.send(JSON.stringify(message));
-    //global.ws.send(JSON.stringify(snd));
+    global.ws.send(JSON.stringify(snd));
   };
 
   getParams = () => {
     let snd = { media_cs_info: true };
     let playlist = { media_pl_info: true };
     let getSettings = { get_media_setting: true };
-
+    let settings = {
+      M_shuffle: false,
+      M_repeat: true,
+      Media_Mute: true,
+      Media_Vol: 40
+    };
     global.ws.send(JSON.stringify(snd));
     //global.ws.send('{"media_cs_name": "text"}');
     global.ws.send(JSON.stringify(playlist));
     global.ws.send(JSON.stringify(getSettings));
     //global.ws.send(JSON.stringify(settings));
-    /*
+
     global.ws.send(
       '[{"media_pl_nm": 1, "media_pl_name":"text1"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}, {"media_pl_nm": 2, "media_pl_name":"text2"}]'
     );
-    */
   };
 
   createCallbacks = () => {
@@ -81,13 +85,13 @@ export default class MediaScreen extends React.Component {
           });
         }
       } else {
-        console.log(e.data);
         this.setState({
           //visible: true,
           //snackbar_message: `[message] ${e.data}`,
           ...data
         });
       }
+      console.log(e.data);
     };
 
     global.ws.onerror = e => {
@@ -272,7 +276,7 @@ export default class MediaScreen extends React.Component {
                 checked={this.state.M_repeat}
                 onPress={() => {
                   this.sendMessage({ M_repeat: !this.state.M_repeat });
-                  this.setState({ M_repeat: !this.state.repeat });
+                  this.setState({ M_repeat: !this.state.M_repeat });
                 }}
                 center
               />
